@@ -7,7 +7,8 @@
 import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { PrismaClient } from '@prisma/client';
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
 import { fileURLToPath } from 'url';
 import path from 'path';
 import os from 'os';
@@ -44,7 +45,9 @@ const ADMIN_URL = `http://localhost:${PORT}/admin`;
 
 // ============ SEGURANÇA ============
 app.use(helmet({
+  hsts: false,
   contentSecurityPolicy: {
+    useDefaults: false,
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
