@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel — Ficha Tattoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="grain"></div>
+
+<header class="topbar">
+  <div class="topbar__left">
+    <span class="topbar__mark">◆</span>
+    <div>
+      <h1>Painel Administrativo</h1>
+      <p>Fichas de Anamnese — <span id="totalCount">...</span> registros</p>
+    </div>
+  </div>
+  <div class="topbar__right">
+    <input type="search" id="searchBox" placeholder="Buscar por nome ou CPF...">
+    <button class="btn-ghost" onclick="window.location.href='/admin/qr'">📱 QR Code</button>
+    <button class="btn-ghost" onclick="window.location.href='/'">+ Nova ficha</button>
+  </div>
+</header>
+
+<main class="admin-main">
+  <div class="stats">
+    <div class="stat">
+      <span class="stat__label">Total</span>
+      <span class="stat__val" id="statTotal">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Hoje</span>
+      <span class="stat__val" id="statToday">0</span>
+    </div>
+    <div class="stat stat--alert">
+      <span class="stat__label">Com alertas</span>
+      <span class="stat__val" id="statAlerts">0</span>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="fichas-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Data</th>
+          <th>Nome</th>
+          <th>CPF</th>
+          <th>WhatsApp</th>
+          <th>Tipo</th>
+          <th>Local</th>
+          <th>Valor</th>
+          <th>Alertas</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="fichasBody">
+        <tr><td colspan="10" class="loading">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="foot">
+  <p>Servidor local · SQLite · Porta 3000 · <a href="https://www.gov.br/anpd/pt-br" target="_blank" rel="noopener">LGPD — ANPD</a></p>
+</footer>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

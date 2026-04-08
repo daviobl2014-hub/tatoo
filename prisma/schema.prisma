@@ -1,0 +1,103 @@
+// ============================================
+// SCHEMA DO BANCO DE DADOS
+// Para migrar para PostgreSQL no futuro:
+// 1. Troque provider = "sqlite" por "postgresql"
+// 2. Atualize DATABASE_URL no .env
+// 3. Rode: npx prisma migrate dev
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Ficha {
+  id                    Int      @id @default(autoincrement())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // ===== IDENTIFICAÇÃO =====
+  nome                  String
+  cpf                   String
+  rg                    String?
+  nascimento            String
+  whatsapp              String
+  email                 String
+  endereco              String?
+  bairro                String?
+  cidade                String?
+  cep                   String?
+  origem                String?
+  emergNome             String
+  emergTel              String
+
+  // ===== SAÚDE =====
+  fumante               String?
+  alergia               String?
+  alergiaSpec           String?
+  gravida               String?
+  menstruada            String?
+  herpes                String?
+  queloide              String?
+  diabetes              String?
+  epilepsia             String?
+  cardiopata            String?
+  anemia                String?
+  hemofilia             String?
+  depressao             String?
+  vitiligo              String?
+  hiv                   String?
+  marcapasso            String?
+  hepatite              String?
+  hepatiteSpec          String?
+  hipertensao           String?
+  autoimune             String?
+  autoimuneSpec         String?
+  alimentou             String?
+  drogas                String?
+  bronzeada             String?
+  cancer                String?
+  cancerSpec            String?
+  peleCicatriz          String?
+  peleCicatrizSpec      String?
+  medicamento           String?
+  medicamentoSpec       String?
+  tratamento            String?
+  tratamentoSpec        String?
+  transmissivel         String?
+  transmissivelSpec     String?
+  anticoagulante        String?
+  isotretinoina         String?
+
+  sangue                String?
+  fitzpatrick           String?
+  outras                String?
+
+  // ===== PROCEDIMENTO =====
+  tipo                  String?
+  profissional          String?
+  localCorpo            String?
+  obs                   String?
+  valor                 String?
+  tattoosAnteriores     String?
+
+  // ===== CONSENTIMENTOS (LGPD) =====
+  aceiteTermo           Boolean  @default(false)
+  aceiteLgpd            Boolean  @default(false)
+  aceiteImagem          Boolean  @default(false)
+  aceiteFinal           Boolean  @default(false)
+
+  // ===== ASSINATURA =====
+  assinatura            String?
+
+  // ===== METADADOS =====
+  ipAddress             String?
+  userAgent             String?
+
+  @@index([cpf])
+  @@index([createdAt])
+}
