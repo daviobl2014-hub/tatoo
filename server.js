@@ -366,19 +366,19 @@ app.get('/api/qr', adminOnlyLocalhost, async (req, res) => {
 
 // ============ PÁGINAS ============
 app.get('/admin', adminOnlyLocalhost, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-hub.html'));
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 app.get('/admin/dashboard', adminOnlyLocalhost, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-dashboard.html'));
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.get('/admin/agendamentos', adminOnlyLocalhost, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-agendamentos.html'));
+  res.sendFile(path.join(__dirname, 'public', 'agendamentos.html'));
 });
 
 app.get('/admin/clientes', adminOnlyLocalhost, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+  res.sendFile(path.join(__dirname, 'public', 'clientes.html'));
 });
 
 app.get('/admin/qr', adminOnlyLocalhost, (req, res) => {
@@ -386,11 +386,11 @@ app.get('/admin/qr', adminOnlyLocalhost, (req, res) => {
 });
 
 app.get('/admin/clientes/:id', adminOnlyLocalhost, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-detail.html'));
+  res.sendFile(path.join(__dirname, 'public', 'cliente-detalhe.html'));
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'ficha.html'));
 });
 
 // ============ START ============

@@ -1,0 +1,216 @@
+==========================================================
+  BLACK INK STUDIO - Sistema de Fichas e Agendamentos
+  GUIA DE INSTALACAO (Windows)
+==========================================================
+
+Este guia explica como instalar e rodar o sistema em uma
+maquina nova, com o icone de bandeja que sobe o servidor
+em segundo plano.
+
+
+----------------------------------------------------------
+1) REQUISITOS
+----------------------------------------------------------
+
+- Windows 10 ou 11
+- Node.js versao 18 ou superior (recomendado: LTS mais recente)
+  Baixe em: https://nodejs.org  (escolha a versao "LTS")
+  Durante a instalacao, mantenha marcada a opcao
+  "Add to PATH" (vem marcada por padrao).
+
+Para conferir se o Node ja esta instalado, abra o
+PowerShell e digite:
+
+    node --version
+    npm --version
+
+Se aparecer um numero de versao em cada, esta tudo certo.
+
+
+----------------------------------------------------------
+2) COPIAR O PROJETO
+----------------------------------------------------------
+
+Copie a pasta inteira do projeto (a pasta "tatoo") para a
+maquina nova. Pode ser por pen drive, rede ou git clone.
+
+IMPORTANTE: a pasta "node_modules" e o banco de dados NAO
+sao copiados (sao recriados na instalacao). Tambem o
+arquivo ".env" pode nao vir junto - veja o passo 3.
+
+
+----------------------------------------------------------
+3) CRIAR O ARQUIVO .env  (se nao existir)
+----------------------------------------------------------
+
+Verifique se existe um arquivo chamado ".env" na raiz do
+projeto (mesma pasta do server.js).
+
+Se NAO existir, crie um arquivo de texto chamado ".env"
+(exatamente assim, com o ponto na frente e sem .txt no
+final) com este conteudo:
+
+    DATABASE_URL="file:./dev.db"
+    PORT=3000
+
+Dica: pelo PowerShell, dentro da pasta do projeto
+(metodo sem BOM, importante para o .env funcionar):
+
+    "DATABASE_URL=""file:./dev.db""`r`nPORT=3000" | Out-File -FilePath ".env" -Encoding ascii
+
+Ou simplesmente crie pelo Bloco de Notas e salve como
+".env" (selecione "Todos os arquivos" no tipo, para nao
+virar .env.txt).
+
+
+----------------------------------------------------------
+4) INSTALAR E PREPARAR (so na primeira vez)
+----------------------------------------------------------
+
+Abra o PowerShell DENTRO da pasta do projeto. Um jeito
+facil: abra a pasta no Explorador de Arquivos, segure
+SHIFT, clique com o botao direito num espaco vazio e
+escolha "Abrir janela do PowerShell aqui".
+
+Rode os comandos abaixo, um de cada vez:
+
+    npm install
+    npx prisma generate
+    npx prisma db push
+
+O que cada um faz:
+  - npm install        -> baixa as bibliotecas (Express, Prisma, etc.)
+  - npx prisma generate-> gera o cliente do banco de dados
+  - npx prisma db push -> cria o banco SQLite (prisma/dev.db)
+                          com as tabelas de fichas e agendamentos
+
+
+----------------------------------------------------------
+5) RODAR O SISTEMA (no dia a dia)
+----------------------------------------------------------
+
+OPCAO A - Pelo icone de bandeja (recomendado):
+
+  De DUPLO CLIQUE no arquivo:
+
+      Iniciar Black Ink Studio.vbs
+
+  Isso inicia o servidor escondido e coloca um icone
+  vermelho na bandeja do sistema (canto inferior direito,
+  perto do relogio).
+
+  - CLIQUE no icone (ou duplo clique) -> abre o painel
+  - BOTAO DIREITO no icone -> menu com:
+        Abrir painel
+        Dashboard
+        Clientes
+        Agendamentos
+        QR Code
+        Ficha do cliente
+        Parar servidor e sair
+
+
+OPCAO B - Manualmente pelo terminal (para ver logs):
+
+      npm start
+
+  (mantem a janela aberta mostrando o endereco e o QR code;
+   feche com Ctrl+C)
+
+
+----------------------------------------------------------
+6) ENDERECOS DE ACESSO
+----------------------------------------------------------
+
+Painel administrativo (SO neste computador):
+
+      http://localhost:3000/admin
+
+Ficha do cliente (neste PC ou no celular na MESMA rede
+WiFi do estudio):
+
+      http://localhost:3000/
+
+Outras paginas:
+      http://localhost:3000/admin/dashboard
+      http://localhost:3000/admin/clientes
+      http://localhost:3000/admin/agendamentos
+      http://localhost:3000/admin/qr
+
+OBS: o painel admin so abre na maquina onde o servidor
+esta rodando (protecao por localhost). Os clientes acessam
+apenas a ficha, e precisam estar no mesmo WiFi do estudio.
+
+
+----------------------------------------------------------
+7) INICIAR JUNTO COM O WINDOWS (opcional)
+----------------------------------------------------------
+
+Para o sistema abrir sozinho ao ligar o PC:
+
+  1. Aperte a tecla Windows + R
+  2. Digite:   shell:startup    e tecle Enter
+  3. Abre a pasta de Inicializar do Windows
+  4. Crie um ATALHO do arquivo "Iniciar Black Ink Studio.vbs"
+     dentro dessa pasta
+     (botao direito no .vbs -> Enviar para -> Area de
+      trabalho, depois mova o atalho para a pasta de
+      inicializar; ou copie e cole como atalho)
+
+
+----------------------------------------------------------
+8) PROBLEMAS COMUNS
+----------------------------------------------------------
+
+* "node nao e reconhecido"
+  -> Node.js nao esta instalado ou nao esta no PATH.
+     Reinstale pelo site oficial e reinicie o PowerShell.
+
+* O navegador abre mas nao carrega estilo/dados
+  -> Certifique-se de acessar por http://localhost:3000
+     (e nao abrindo o arquivo .html direto). O sistema
+     depende do servidor estar rodando.
+
+* Windows pergunta sobre firewall na primeira execucao
+  -> Permita o acesso em "Redes privadas" para que os
+     celulares no WiFi consigam abrir a ficha.
+
+* A porta 3000 ja esta em uso
+  -> Outro programa (ou outra instancia) esta usando a
+     porta. Feche pelo menu da bandeja
+     ("Parar servidor e sair") ou reinicie o PC.
+
+* O icone da bandeja nao aparece
+  -> Clique na setinha "^" da bandeja para ver icones
+     ocultos. Se preferir, fixe o icone arrastando-o
+     para a barra.
+
+* Atualizou arquivos e nao mudou nada
+  -> Recarregue a pagina com Ctrl+F5. Se mexeu no
+     server.js, pare e inicie o servidor de novo.
+
+
+----------------------------------------------------------
+9) BACKUP DOS DADOS
+----------------------------------------------------------
+
+Todos os dados (fichas e agendamentos) ficam em um unico
+arquivo:
+
+      prisma/dev.db
+
+Para fazer backup, basta COPIAR esse arquivo para um lugar
+seguro (nuvem, pen drive). Para restaurar, substitua o
+arquivo dev.db pelo backup com o servidor parado.
+
+
+----------------------------------------------------------
+  Resumo rapido (maquina nova):
+    1. Instalar Node.js
+    2. Copiar a pasta do projeto
+    3. Criar .env (se nao existir)
+    4. npm install
+    5. npx prisma generate
+    6. npx prisma db push
+    7. Duplo clique em "Iniciar Black Ink Studio.vbs"
+==========================================================

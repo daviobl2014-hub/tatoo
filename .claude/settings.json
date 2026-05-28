@@ -31,7 +31,10 @@
       "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Force -Confirm:$false)",
       "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/admin/agendamentos\" -UseBasicParsing -TimeoutSec 5; Write-Output \"Servidor OK: $\\($r.StatusCode\\)\" } catch { Write-Output \"Servidor DOWN: $\\($_.Exception.Message\\)\" })",
-      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Stop-Process -Force -Confirm:$false; Start-Sleep -Milliseconds 500; Set-Location \"c:\\\\Users\\\\daviPYJS\\\\Documents\\\\tatoo\"; Write-Output \"CWD: $\\(Get-Location\\)\"; Test-Path \"server.js\")"
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Stop-Process -Force -Confirm:$false; Start-Sleep -Milliseconds 500; Set-Location \"c:\\\\Users\\\\daviPYJS\\\\Documents\\\\tatoo\"; Write-Output \"CWD: $\\(Get-Location\\)\"; Test-Path \"server.js\")",
+      "Bash(cat .env)",
+      "Bash(cat .gitignore)",
+      "Bash(npm --version)"
     ]
   }
 }
