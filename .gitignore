@@ -9,3 +9,6 @@ prisma/migrations/
 # backups do banco
 prisma/dev.db.bak
 *.bak
+
+# config local do Claude Code
+.claude/
