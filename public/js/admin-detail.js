@@ -192,7 +192,7 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
     const res = await fetch(`/api/fichas/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Erro ao excluir');
     alert('Ficha excluída.');
-    window.location.href = '/admin';
+    window.location.href = '/admin/clientes';
   } catch (err) {
     alert('Erro: ' + err.message);
   }

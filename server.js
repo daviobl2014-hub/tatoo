@@ -92,10 +92,17 @@ function adminOnlyLocalhost(req, res, next) {
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
-app.set('trust proxy', true);
+app.set('trust proxy', 'loopback');
 
 // Arquivos estáticos (ficha pública)
-app.use(express.static(path.join(__dirname, 'public')));
+// Sem cache: estúdio roda local e em desenvolvimento — sempre serve a versão atual
+app.use(express.static(path.join(__dirname, 'public'), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store');
+  },
+}));
 
 // ============ API ============
 
@@ -218,6 +225,22 @@ app.get('/api/fichas', adminOnlyLocalhost, async (req, res) => {
 });
 
 /**
+ * GET /api/fichas/full — Lista completa (dashboard e clientes)
+ * Definida ANTES de /api/fichas/:id para não ser capturada por :id
+ */
+app.get('/api/fichas/full', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const fichas = await prisma.ficha.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(fichas);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao listar fichas' });
+  }
+});
+
+/**
  * GET /api/fichas/:id — Detalhe (só localhost)
  */
 app.get('/api/fichas/:id', adminOnlyLocalhost, async (req, res) => {
@@ -246,6 +269,85 @@ app.delete('/api/fichas/:id', adminOnlyLocalhost, async (req, res) => {
   }
 });
 
+// ============ AGENDAMENTOS ============
+
+app.get('/api/agendamentos', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const list = await prisma.agendamento.findMany({
+      orderBy: [{ data: 'asc' }, { horario: 'asc' }],
+    });
+    res.json(list);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao listar agendamentos' });
+  }
+});
+
+app.post('/api/agendamentos', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const d = req.body;
+    if (!d.cliente || !d.whatsapp || !d.data || !d.horario) {
+      return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+    }
+    const agend = await prisma.agendamento.create({
+      data: {
+        cliente: d.cliente,
+        whatsapp: d.whatsapp,
+        tipo: d.tipo || null,
+        profissional: d.profissional || null,
+        data: d.data,
+        horario: d.horario,
+        duracao: d.duracao || null,
+        valor: d.valor || null,
+        obs: d.obs || null,
+        status: d.status || 'agendado',
+        fichaId: d.fichaId || null,
+      },
+    });
+    res.json({ ok: true, id: agend.id });
+  } catch (err) {
+    console.error('Erro ao criar agendamento:', err);
+    res.status(500).json({ error: 'Erro ao criar agendamento' });
+  }
+});
+
+app.put('/api/agendamentos/:id', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const d = req.body;
+    const agend = await prisma.agendamento.update({
+      where: { id },
+      data: {
+        cliente: d.cliente,
+        whatsapp: d.whatsapp,
+        tipo: d.tipo || null,
+        profissional: d.profissional || null,
+        data: d.data,
+        horario: d.horario,
+        duracao: d.duracao || null,
+        valor: d.valor || null,
+        obs: d.obs || null,
+        status: d.status || 'agendado',
+      },
+    });
+    res.json({ ok: true, id: agend.id });
+  } catch (err) {
+    console.error('Erro ao atualizar agendamento:', err);
+    res.status(500).json({ error: 'Erro ao atualizar agendamento' });
+  }
+});
+
+app.delete('/api/agendamentos/:id', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await prisma.agendamento.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao excluir agendamento' });
+  }
+});
+
 /**
  * GET /api/qr — Retorna o QR code como data URL (base64)
  */
@@ -264,6 +366,18 @@ app.get('/api/qr', adminOnlyLocalhost, async (req, res) => {
 
 // ============ PÁGINAS ============
 app.get('/admin', adminOnlyLocalhost, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-hub.html'));
+});
+
+app.get('/admin/dashboard', adminOnlyLocalhost, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-dashboard.html'));
+});
+
+app.get('/admin/agendamentos', adminOnlyLocalhost, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-agendamentos.html'));
+});
+
+app.get('/admin/clientes', adminOnlyLocalhost, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
@@ -271,7 +385,7 @@ app.get('/admin/qr', adminOnlyLocalhost, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'qr.html'));
 });
 
-app.get('/admin/:id', adminOnlyLocalhost, (req, res) => {
+app.get('/admin/clientes/:id', adminOnlyLocalhost, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin-detail.html'));
 });
 

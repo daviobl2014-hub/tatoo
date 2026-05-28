@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Tattoo Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/dashboard.css?v=3">
+</head>
+<body>
+<div class="grain"></div>
+
+<header class="topbar">
+  <div class="topbar__left">
+    <span class="topbar__mark">&#9670;</span>
+    <div>
+      <h1>Tattoo Studio</h1>
+      <p>Dashboard</p>
+    </div>
+  </div>
+  <div class="topbar__right">
+    <a href="/admin" class="btn-ghost">&#8592; Painel</a>
+  </div>
+</header>
+
+<main class="dash">
+
+  <section class="page-section">
+    <div class="page-section__header">
+      <span class="page-section__num">01</span>
+      <h2>Resumo do per&iacute;odo</h2>
+      <p>Volume de fichas registradas nos &uacute;ltimos intervalos.</p>
+    </div>
+
+    <div class="dash__stats">
+      <div class="stat">
+        <span class="stat__label">Total de fichas</span>
+        <span class="stat__val" id="dTotal">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Hoje</span>
+        <span class="stat__val" id="dToday">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Esta semana</span>
+        <span class="stat__val" id="dWeek">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Este m&ecirc;s</span>
+        <span class="stat__val" id="dMonth">0</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="page-section__header">
+      <span class="page-section__num">02</span>
+      <h2>Demografia &amp; aquisi&ccedil;&atilde;o</h2>
+      <p>Perfil dos clientes e canais de origem.</p>
+    </div>
+
+    <div class="dash__grid">
+      <div class="dash-panel">
+        <div class="dash-panel__title">Procedimentos</div>
+        <div class="dash-panel__subtitle">Distribui&ccedil;&atilde;o por tipo</div>
+        <div class="dash-chart" id="chartTipo"></div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel__title">Origem</div>
+        <div class="dash-panel__subtitle">Como nos conheceram</div>
+        <div class="dash-chart" id="chartOrigem"></div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel__title">Tipo sangu&iacute;neo</div>
+        <div class="dash-panel__subtitle">Distribui&ccedil;&atilde;o entre clientes</div>
+        <div class="dash-chart" id="chartSangue"></div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel__title">Alertas de sa&uacute;de</div>
+        <div class="dash-panel__subtitle">Condi&ccedil;&otilde;es declaradas</div>
+        <div class="dash-chart" id="chartAlerts"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="page-section__header">
+      <span class="page-section__num">03</span>
+      <h2>Linha do tempo</h2>
+      <p>Volume di&aacute;rio de fichas nos &uacute;ltimos 30 dias.</p>
+    </div>
+
+    <div class="dash__grid">
+      <div class="dash-panel dash-panel--wide">
+        <div class="dash-panel__title">Fichas por dia</div>
+        <div class="dash-panel__subtitle">&Uacute;ltimos 30 dias</div>
+        <div class="dash-chart dash-chart--timeline" id="chartTimeline"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="page-section__header">
+      <span class="page-section__num">04</span>
+      <h2>Agenda</h2>
+      <p>Atendimentos do dia e status geral dos agendamentos.</p>
+    </div>
+
+    <div class="dash__grid">
+      <div class="dash-panel">
+        <div class="dash-panel__title">Agendamentos de hoje</div>
+        <div class="dash-panel__subtitle">Em ordem de hor&aacute;rio</div>
+        <div class="dash-chart" id="chartAgendHoje"></div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel__title">Status dos agendamentos</div>
+        <div class="dash-panel__subtitle">Total por situa&ccedil;&atilde;o</div>
+        <div class="dash-chart" id="chartAgendStatus"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>Servidor local &middot; SQLite &middot; <a href="https://www.gov.br/anpd/pt-br" target="_blank" rel="noopener">LGPD &mdash; ANPD</a></p>
+</footer>
+
+<script src="/js/admin-dashboard.js?v=3"></script>
+</body>
+</html>

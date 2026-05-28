@@ -3,73 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel — Ficha Tattoo</title>
+<title>Clientes — Black Ink Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="/css/clientes.css?v=3">
 </head>
 <body>
 <div class="grain"></div>
 
 <header class="topbar">
-  <div class="topbar__left">
-    <span class="topbar__mark">◆</span>
-    <div>
-      <h1>Painel Administrativo</h1>
-      <p>Fichas de Anamnese — <span id="totalCount">...</span> registros</p>
+  <a class="topbar__brand" href="/admin">
+    <span class="topbar__logo" aria-hidden="true">
+      <svg viewBox="0 0 32 44" fill="none">
+        <path d="M16 2 L28 14 L22 20 L26 42 L16 30 L6 42 L10 20 L4 14 Z" fill="currentColor"/>
+      </svg>
+    </span>
+    <div class="topbar__title">
+      <h1>BLACK INK STUDIO</h1>
+      <p>PAINEL ADMIN</p>
     </div>
+  </a>
+
+  <div class="topbar__nav">
+    <button class="nav-arrow" id="prevWeek" aria-label="Semana anterior">&#8249;</button>
+    <div class="nav-date">
+      <svg class="nav-date__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span id="weekRangeText">--</span>
+    </div>
+    <button class="nav-arrow" id="nextWeek" aria-label="Pr&oacute;xima semana">&#8250;</button>
   </div>
-  <div class="topbar__right">
-    <input type="search" id="searchBox" placeholder="Buscar por nome ou CPF...">
-    <button class="btn-ghost" onclick="window.location.href='/admin/qr'">📱 QR Code</button>
-    <button class="btn-ghost" onclick="window.location.href='/'">+ Nova ficha</button>
+
+  <div class="topbar__actions">
+    <a class="tab-btn" href="/admin/agendamentos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>
+      </svg>
+      Agendamentos
+    </a>
+    <a class="tab-btn tab-btn--active" href="/admin/clientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Clientes
+    </a>
   </div>
 </header>
 
-<main class="admin-main">
-  <div class="stats">
-    <div class="stat">
-      <span class="stat__label">Total</span>
-      <span class="stat__val" id="statTotal">0</span>
+<main class="clientes">
+  <div class="clientes__head">
+    <div class="page-section__header">
+      <span class="page-section__num">03.</span>
+      <h2>Clientes</h2>
+      <p>Pesquise e gerencie os clientes do est&uacute;dio.</p>
     </div>
-    <div class="stat">
-      <span class="stat__label">Hoje</span>
-      <span class="stat__val" id="statToday">0</span>
+    <button class="btn-primary clientes__new" onclick="window.location.href='/'">+ Novo cliente</button>
+  </div>
+
+  <div class="clientes__toolbar">
+    <div class="search-wrap">
+      <svg class="search-wrap__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="searchBox" placeholder="Buscar por nome, telefone ou e-mail...">
     </div>
-    <div class="stat stat--alert">
-      <span class="stat__label">Com alertas</span>
-      <span class="stat__val" id="statAlerts">0</span>
+
+    <div class="select-wrap">
+      <span class="select-wrap__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>
+        </svg>
+      </span>
+      <select id="filterStatus">
+        <option value="all">Todos os status</option>
+        <option value="ativo">Ativo</option>
+        <option value="aguardando">Aguardando</option>
+        <option value="inativo">Inativo</option>
+      </select>
+      <span class="select-wrap__chev">&#9662;</span>
+    </div>
+
+    <div class="select-wrap">
+      <span class="select-wrap__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 7 7 3 11 7"/><line x1="7" y1="3" x2="7" y2="13"/>
+          <polyline points="21 17 17 21 13 17"/><line x1="17" y1="21" x2="17" y2="11"/>
+        </svg>
+      </span>
+      <select id="sortBy">
+        <option value="nome-az">Ordenar: Nome A-Z</option>
+        <option value="nome-za">Ordenar: Nome Z-A</option>
+        <option value="sessoes">Ordenar: Mais sess&otilde;es</option>
+        <option value="recente">Ordenar: Cadastro recente</option>
+      </select>
+      <span class="select-wrap__chev">&#9662;</span>
+    </div>
+  </div>
+
+  <div class="clientes__stats">
+    <div class="cstat">
+      <span class="cstat__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </span>
+      <div class="cstat__body">
+        <span class="cstat__label">Total de clientes</span>
+        <span class="cstat__val" id="statTotal">0</span>
+        <span class="cstat__sub">clientes cadastrados</span>
+      </div>
+    </div>
+
+    <div class="cstat">
+      <span class="cstat__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </span>
+      <div class="cstat__body">
+        <span class="cstat__label">Com agendamento</span>
+        <span class="cstat__val" id="statWeek">0</span>
+        <span class="cstat__sub">esta semana</span>
+      </div>
+    </div>
+
+    <div class="cstat">
+      <span class="cstat__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </span>
+      <div class="cstat__body">
+        <span class="cstat__label">Clientes recorrentes</span>
+        <span class="cstat__val" id="statRecorrentes">0%</span>
+        <span class="cstat__sub">do total</span>
+      </div>
+    </div>
+
+    <div class="cstat">
+      <span class="cstat__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </span>
+      <div class="cstat__body">
+        <span class="cstat__label">&Uacute;ltimo cadastro</span>
+        <span class="cstat__val cstat__val--sm" id="statUltimo">--</span>
+        <span class="cstat__sub" id="statUltimoNome">&mdash;</span>
+      </div>
     </div>
   </div>
 
   <div class="table-wrap">
-    <table class="fichas-table">
+    <table class="clientes-table">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Data</th>
-          <th>Nome</th>
-          <th>CPF</th>
-          <th>WhatsApp</th>
-          <th>Tipo</th>
-          <th>Local</th>
-          <th>Valor</th>
-          <th>Alertas</th>
-          <th></th>
+          <th>Cliente</th>
+          <th>Contato</th>
+          <th>&Uacute;ltimo agendamento</th>
+          <th>Total de sess&otilde;es</th>
+          <th>Status</th>
+          <th class="th-actions">A&ccedil;&otilde;es</th>
         </tr>
       </thead>
-      <tbody id="fichasBody">
-        <tr><td colspan="10" class="loading">Carregando...</td></tr>
+      <tbody id="clientesBody">
+        <tr><td colspan="6" class="loading">Carregando...</td></tr>
       </tbody>
     </table>
   </div>
+
+  <div class="pagination">
+    <span class="pagination__info" id="pagInfo">&mdash;</span>
+    <div class="pagination__pages" id="pagPages"></div>
+    <div class="pagination__perpage">
+      <span>Itens por p&aacute;gina:</span>
+      <div class="select-wrap select-wrap--mini">
+        <select id="perPage">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+        <span class="select-wrap__chev">&#9662;</span>
+      </div>
+    </div>
+  </div>
 </main>
 
-<footer class="foot">
-  <p>Servidor local · SQLite · Porta 3000 · <a href="https://www.gov.br/anpd/pt-br" target="_blank" rel="noopener">LGPD — ANPD</a></p>
-</footer>
-
-<script src="js/admin.js"></script>
+<script src="/js/admin.js?v=3"></script>
 </body>
 </html>

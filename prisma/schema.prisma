@@ -101,3 +101,25 @@ model Ficha {
   @@index([cpf])
   @@index([createdAt])
 }
+
+model Agendamento {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cliente       String
+  whatsapp      String
+  tipo          String?
+  profissional  String?
+  data          String
+  horario       String
+  duracao       String?
+  valor         String?
+  obs           String?
+  status        String   @default("agendado")
+
+  fichaId       Int?
+
+  @@index([data])
+  @@index([status])
+}
