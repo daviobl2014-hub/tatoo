@@ -177,6 +177,17 @@ body {
 
 .tab-btn--active:hover { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--ink); }
 
+.tab-btn--painel {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.tab-btn--painel:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
 /* ============ BUTTONS ============ */
 .btn-primary {
   font-family: var(--font-body);
