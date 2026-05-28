@@ -1,8 +1,11 @@
 /* ============================================
-   DETALHE DA FICHA
+   DETALHE DO CLIENTE — visao 360
+   Contato + agendamentos + ficha de anamnese
    ============================================ */
 
 const id = window.location.pathname.split('/').pop();
+let clienteData = null;
+let lanBase = null; // base com IP da rede (para o link da ficha no celular)
 
 const HEALTH_FIELDS = [
   { key: 'fumante', label: 'Fumante' },
@@ -35,167 +38,177 @@ const HEALTH_FIELDS = [
   { key: 'isotretinoina', label: 'Isotretinoína (6 meses)', alert: true },
 ];
 
-async function loadFicha() {
-  try {
-    const res = await fetch(`/api/fichas/${id}`);
-    if (!res.ok) throw new Error('Ficha não encontrada');
-    const ficha = await res.json();
-    render(ficha);
-  } catch (err) {
-    document.getElementById('content').innerHTML = `
-      <div class="detail-section"><p>Erro: ${err.message}</p></div>
-    `;
-  }
-}
+const STATUS_LABEL = { agendado: 'Aguardando', confirmado: 'Confirmado', concluido: 'Concluído', cancelado: 'Cancelado' };
 
-function val(v, fallback = '—') {
-  return v == null || v === '' ? fallback : v;
-}
-
+function val(v, fb = '—') { return v == null || v === '' ? fb : v; }
 function escapeHtml(str) {
   if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-
-function yesNo(v, isAlert = false) {
-  if (v === 'sim') {
-    return `<span class="${isAlert ? 'detail-item__val--alert' : 'detail-item__val--sim'}">SIM</span>`;
-  }
+function yesNo(v, alert = false) {
+  if (v === 'sim') return `<span class="${alert ? 'detail-item__val--alert' : 'detail-item__val--sim'}">SIM</span>`;
   if (v === 'nao') return `<span class="detail-item__val--nao">Não</span>`;
   return `<span class="detail-item__val--nao">—</span>`;
 }
+function fmtDateBR(iso) { if (!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; }
 
-function render(ficha) {
-  document.getElementById('fichaId').textContent =
-    `#${String(ficha.id).padStart(4, '0')} · ${new Date(ficha.createdAt).toLocaleString('pt-BR')}`;
+async function load() {
+  try {
+    // pega base de rede (IP) para o link da ficha; nao bloqueia se falhar
+    fetch('/api/qr').then(r => r.ok ? r.json() : null).then(d => { if (d) lanBase = d.url; }).catch(()=>{});
 
-  // Alertas críticos primeiro
-  const alerts = HEALTH_FIELDS.filter(f => f.alert && ficha[f.key] === 'sim');
-  const alertSection = alerts.length ? `
-    <div class="detail-section" style="border-color: var(--accent); border-left: 3px solid var(--accent);">
-      <div class="detail-section__title">⚠ Atenção — Alertas críticos</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${alerts.map(a => {
-          const spec = a.spec && ficha[a.spec] ? ` (${escapeHtml(ficha[a.spec])})` : '';
-          return `<span class="detail-item__val--alert">${a.label}${spec}</span>`;
-        }).join('')}
-      </div>
-    </div>
-  ` : '';
-
-  // Seção: Identificação
-  const identSection = `
-    <div class="detail-section">
-      <div class="detail-section__title">Identificação</div>
-      <div class="detail-grid">
-        <div class="detail-item"><span class="detail-item__key">Nome completo</span><span class="detail-item__val">${escapeHtml(ficha.nome)}</span></div>
-        <div class="detail-item"><span class="detail-item__key">CPF</span><span class="detail-item__val">${escapeHtml(ficha.cpf)}</span></div>
-        <div class="detail-item"><span class="detail-item__key">RG</span><span class="detail-item__val">${val(escapeHtml(ficha.rg))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Nascimento</span><span class="detail-item__val">${val(escapeHtml(ficha.nascimento))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">WhatsApp</span><span class="detail-item__val">${escapeHtml(ficha.whatsapp)}</span></div>
-        <div class="detail-item"><span class="detail-item__key">E-mail</span><span class="detail-item__val">${escapeHtml(ficha.email)}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Endereço</span><span class="detail-item__val">${val(escapeHtml(ficha.endereco))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Bairro / Cidade</span><span class="detail-item__val">${val(escapeHtml(ficha.bairro))} / ${val(escapeHtml(ficha.cidade))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">CEP</span><span class="detail-item__val">${val(escapeHtml(ficha.cep))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Como nos conheceu</span><span class="detail-item__val">${val(escapeHtml(ficha.origem))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Emergência</span><span class="detail-item__val">${escapeHtml(ficha.emergNome)} · ${escapeHtml(ficha.emergTel)}</span></div>
-      </div>
-    </div>
-  `;
-
-  // Seção: Procedimento
-  const procSection = `
-    <div class="detail-section">
-      <div class="detail-section__title">Procedimento</div>
-      <div class="detail-grid">
-        <div class="detail-item"><span class="detail-item__key">Tipo</span><span class="detail-item__val">${val(escapeHtml(ficha.tipo))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Profissional</span><span class="detail-item__val">${val(escapeHtml(ficha.profissional))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Local do corpo</span><span class="detail-item__val">${val(escapeHtml(ficha.localCorpo))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Valor</span><span class="detail-item__val">${ficha.valor ? 'R$ ' + escapeHtml(ficha.valor) : '—'}</span></div>
-        <div class="detail-item" style="grid-column:1/-1"><span class="detail-item__key">Observações</span><span class="detail-item__val">${val(escapeHtml(ficha.obs))}</span></div>
-        <div class="detail-item" style="grid-column:1/-1"><span class="detail-item__key">Tatuagens anteriores / reações</span><span class="detail-item__val">${val(escapeHtml(ficha.tattoosAnteriores))}</span></div>
-      </div>
-    </div>
-  `;
-
-  // Seção: Histórico de saúde
-  const healthSection = `
-    <div class="detail-section">
-      <div class="detail-section__title">Histórico de saúde</div>
-      <div class="detail-grid detail-grid--3">
-        ${HEALTH_FIELDS.map(f => {
-          const spec = f.spec && ficha[f.spec] ? `<br><small style="color:var(--ink-faint)">${escapeHtml(ficha[f.spec])}</small>` : '';
-          return `
-            <div class="detail-item">
-              <span class="detail-item__key">${f.label}</span>
-              <span class="detail-item__val">${yesNo(ficha[f.key], f.alert)}${spec}</span>
-            </div>
-          `;
-        }).join('')}
-      </div>
-      <div class="detail-grid" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line)">
-        <div class="detail-item"><span class="detail-item__key">Tipo sanguíneo</span><span class="detail-item__val">${val(escapeHtml(ficha.sangue))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Fitzpatrick</span><span class="detail-item__val">${val(escapeHtml(ficha.fitzpatrick))}</span></div>
-        <div class="detail-item" style="grid-column:1/-1"><span class="detail-item__key">Outras condições</span><span class="detail-item__val">${val(escapeHtml(ficha.outras))}</span></div>
-      </div>
-    </div>
-  `;
-
-  // Seção: Consentimentos
-  const consentSection = `
-    <div class="detail-section">
-      <div class="detail-section__title">Consentimentos (LGPD)</div>
-      <div class="detail-grid">
-        <div class="detail-item"><span class="detail-item__key">Termo de responsabilidade</span><span class="detail-item__val">${ficha.aceiteTermo ? '✓ Aceito' : '✗ Recusado'}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Tratamento de dados (LGPD)</span><span class="detail-item__val">${ficha.aceiteLgpd ? '✓ Aceito' : '✗ Recusado'}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Cessão de imagem</span><span class="detail-item__val">${ficha.aceiteImagem ? '✓ Autorizou' : '— Não autorizou'}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Confirmação final</span><span class="detail-item__val">${ficha.aceiteFinal ? '✓ Confirmou' : '✗'}</span></div>
-      </div>
-    </div>
-  `;
-
-  // Seção: Assinatura
-  const sigSection = ficha.assinatura ? `
-    <div class="detail-section">
-      <div class="detail-section__title">Assinatura digital</div>
-      <div class="signature-display">
-        <img src="${ficha.assinatura}" alt="Assinatura">
-      </div>
-    </div>
-  ` : '';
-
-  // Metadados
-  const metaSection = `
-    <div class="detail-section">
-      <div class="detail-section__title">Metadados técnicos</div>
-      <div class="detail-grid">
-        <div class="detail-item"><span class="detail-item__key">IP</span><span class="detail-item__val">${val(escapeHtml(ficha.ipAddress))}</span></div>
-        <div class="detail-item"><span class="detail-item__key">Criado em</span><span class="detail-item__val">${new Date(ficha.createdAt).toLocaleString('pt-BR')}</span></div>
-        <div class="detail-item" style="grid-column:1/-1"><span class="detail-item__key">User agent</span><span class="detail-item__val" style="font-size:11px;font-family:monospace">${val(escapeHtml(ficha.userAgent))}</span></div>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('content').innerHTML =
-    alertSection + identSection + procSection + healthSection + consentSection + sigSection + metaSection;
+    const res = await fetch(`/api/clientes/${id}`);
+    if (!res.ok) throw new Error('Cliente não encontrado');
+    clienteData = await res.json();
+    render(clienteData);
+  } catch (err) {
+    document.getElementById('content').innerHTML =
+      `<div class="detail-section"><p>Erro: ${escapeHtml(err.message)}</p></div>`;
+  }
 }
 
-// Excluir
+function render(c) {
+  const codigo = 'CL' + String(c.id).padStart(3, '0');
+  document.getElementById('clienteSub').textContent =
+    `#${codigo} · cadastrado em ${new Date(c.createdAt).toLocaleDateString('pt-BR')}`;
+
+  const ficha = c.fichas && c.fichas.length ? c.fichas[0] : null;
+  const fichaLink = `/ficha?t=${c.token}`;
+
+  // ===== Ações =====
+  const acoes = `
+    <div class="actions-row">
+      <a class="btn-primary" href="/admin/agendamentos">+ Agendar</a>
+      <button class="btn-ghost" id="copyFichaBtn">Copiar link da ficha</button>
+      <a class="btn-ghost" href="${fichaLink}" target="_blank" rel="noopener">Abrir ficha</a>
+    </div>
+  `;
+
+  // ===== Contato =====
+  const contato = `
+    <div class="detail-section">
+      <div class="detail-section__title">Contato</div>
+      <div class="detail-grid">
+        <div class="detail-item"><span class="detail-item__key">Nome</span><span class="detail-item__val">${escapeHtml(c.nome)}</span></div>
+        <div class="detail-item"><span class="detail-item__key">WhatsApp</span><span class="detail-item__val">${escapeHtml(val(c.whatsapp))}</span></div>
+        <div class="detail-item"><span class="detail-item__key">E-mail</span><span class="detail-item__val">${escapeHtml(val(c.email))}</span></div>
+        <div class="detail-item"><span class="detail-item__key">CPF</span><span class="detail-item__val">${escapeHtml(val(c.cpf))}</span></div>
+        <div class="detail-item"><span class="detail-item__key">Como nos conheceu</span><span class="detail-item__val">${escapeHtml(val(c.origem))}</span></div>
+        <div class="detail-item" style="grid-column:1/-1"><span class="detail-item__key">Observações</span><span class="detail-item__val">${escapeHtml(val(c.obs))}</span></div>
+      </div>
+    </div>
+  `;
+
+  // ===== Agendamentos =====
+  const ags = c.agendamentos || [];
+  const agendItens = ags.length
+    ? ags.map(a => `
+        <div class="appt-line">
+          <span class="appt-line__date">${fmtDateBR(a.data)} &middot; ${escapeHtml(a.horario)}</span>
+          <span class="appt-line__tipo">${escapeHtml(a.tipo || '—')}</span>
+          <span class="appt-line__prof">${escapeHtml(a.profissional || '—')}</span>
+          <span class="appt-line__valor">${a.valor ? 'R$ ' + escapeHtml(a.valor) : '—'}</span>
+          <span class="status-pill status--${a.status}">${STATUS_LABEL[a.status] || a.status}</span>
+        </div>`).join('')
+    : `<p class="muted">Nenhum agendamento ainda.</p>`;
+
+  const agendamentos = `
+    <div class="detail-section">
+      <div class="detail-section__title">Agendamentos (${ags.length})</div>
+      <div class="appt-list">${agendItens}</div>
+    </div>
+  `;
+
+  // ===== Ficha de anamnese =====
+  let fichaSection;
+  if (!ficha) {
+    fichaSection = `
+      <div class="detail-section detail-section--empty">
+        <div class="detail-section__title">Ficha de anamnese</div>
+        <p class="muted">Este cliente ainda não preencheu a ficha de saúde.</p>
+        <p class="muted">Use o botão <strong>"Copiar link da ficha"</strong> acima e mande pro cliente — a identificação já vai preenchida, ele só completa saúde e assinatura.</p>
+      </div>
+    `;
+  } else {
+    const alerts = HEALTH_FIELDS.filter(f => f.alert && ficha[f.key] === 'sim');
+    const alertBlock = alerts.length ? `
+      <div class="detail-section" style="border-color: var(--accent); border-left: 3px solid var(--accent);">
+        <div class="detail-section__title">⚠ Atenção — Alertas críticos</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${alerts.map(a => {
+            const spec = a.spec && ficha[a.spec] ? ` (${escapeHtml(ficha[a.spec])})` : '';
+            return `<span class="detail-item__val--alert">${a.label}${spec}</span>`;
+          }).join('')}
+        </div>
+      </div>` : '';
+
+    const health = `
+      <div class="detail-section">
+        <div class="detail-section__title">Ficha de anamnese — saúde</div>
+        <div class="detail-grid detail-grid--3">
+          ${HEALTH_FIELDS.map(f => {
+            const spec = f.spec && ficha[f.spec] ? `<br><small style="color:var(--ink-faint)">${escapeHtml(ficha[f.spec])}</small>` : '';
+            return `<div class="detail-item"><span class="detail-item__key">${f.label}</span><span class="detail-item__val">${yesNo(ficha[f.key], f.alert)}${spec}</span></div>`;
+          }).join('')}
+        </div>
+        <div class="detail-grid" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line)">
+          <div class="detail-item"><span class="detail-item__key">Tipo sanguíneo</span><span class="detail-item__val">${escapeHtml(val(ficha.sangue))}</span></div>
+          <div class="detail-item"><span class="detail-item__key">Fitzpatrick</span><span class="detail-item__val">${escapeHtml(val(ficha.fitzpatrick))}</span></div>
+          <div class="detail-item" style="grid-column:1/-1"><span class="detail-item__key">Outras condições</span><span class="detail-item__val">${escapeHtml(val(ficha.outras))}</span></div>
+        </div>
+      </div>
+    `;
+
+    const consent = `
+      <div class="detail-section">
+        <div class="detail-section__title">Consentimentos (LGPD)</div>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-item__key">Termo de responsabilidade</span><span class="detail-item__val">${ficha.aceiteTermo ? '✓ Aceito' : '✗'}</span></div>
+          <div class="detail-item"><span class="detail-item__key">Tratamento de dados</span><span class="detail-item__val">${ficha.aceiteLgpd ? '✓ Aceito' : '✗'}</span></div>
+          <div class="detail-item"><span class="detail-item__key">Cessão de imagem</span><span class="detail-item__val">${ficha.aceiteImagem ? '✓ Autorizou' : '— Não'}</span></div>
+          <div class="detail-item"><span class="detail-item__key">Confirmação final</span><span class="detail-item__val">${ficha.aceiteFinal ? '✓' : '✗'}</span></div>
+        </div>
+      </div>
+    `;
+
+    const sig = ficha.assinatura ? `
+      <div class="detail-section">
+        <div class="detail-section__title">Assinatura digital</div>
+        <div class="signature-display"><img src="${ficha.assinatura}" alt="Assinatura"></div>
+      </div>` : '';
+
+    fichaSection = alertBlock + health + consent + sig;
+  }
+
+  document.getElementById('content').innerHTML = acoes + contato + agendamentos + fichaSection;
+
+  // copiar link da ficha (com IP da rede se disponivel)
+  const copyBtn = document.getElementById('copyFichaBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const base = lanBase ? lanBase.replace(/\/$/, '') : location.origin;
+      const url = `${base}/ficha?t=${c.token}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        copyBtn.textContent = 'Link copiado!';
+        setTimeout(() => copyBtn.textContent = 'Copiar link da ficha', 2000);
+      } catch {
+        prompt('Copie o link da ficha:', url);
+      }
+    });
+  }
+}
+
+// Excluir cliente
 document.getElementById('deleteBtn').addEventListener('click', async () => {
-  if (!confirm('Tem certeza? Esta ação não pode ser desfeita.\n\nPela LGPD (Art. 18), o titular tem direito à exclusão de seus dados.')) return;
+  if (!confirm('Excluir este cliente?\n\nRemove o cadastro e a ficha de anamnese (LGPD Art. 18). Os agendamentos ficam no histórico sem vínculo.')) return;
   try {
-    const res = await fetch(`/api/fichas/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/clientes/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Erro ao excluir');
-    alert('Ficha excluída.');
     window.location.href = '/admin/clientes';
   } catch (err) {
     alert('Erro: ' + err.message);
   }
 });
 
-loadFicha();
+load();

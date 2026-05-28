@@ -15,10 +15,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Cliente {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  nome          String
+  whatsapp      String
+  email         String?
+  cpf           String?
+  origem        String?
+  obs           String?
+  token         String?  @unique
+
+  agendamentos  Agendamento[]
+  fichas        Ficha[]
+
+  @@index([whatsapp])
+}
+
 model Ficha {
   id                    Int      @id @default(autoincrement())
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+
+  // ===== VÍNCULO COM CLIENTE =====
+  clienteId             Int?
+  cliente               Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
 
   // ===== IDENTIFICAÇÃO =====
   nome                  String
@@ -100,6 +123,7 @@ model Ficha {
 
   @@index([cpf])
   @@index([createdAt])
+  @@index([clienteId])
 }
 
 model Agendamento {
@@ -118,8 +142,12 @@ model Agendamento {
   obs           String?
   status        String   @default("agendado")
 
+  clienteId     Int?
+  clienteRef    Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+
   fichaId       Int?
 
   @@index([data])
   @@index([status])
+  @@index([clienteId])
 }

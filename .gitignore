@@ -5,3 +5,7 @@ prisma/dev.db-journal
 prisma/migrations/
 *.log
 .DS_Store
+
+# backups do banco
+prisma/dev.db.bak
+*.bak

@@ -14,6 +14,7 @@ import path from 'path';
 import os from 'os';
 import qrcodeTerminal from 'qrcode-terminal';
 import QRCode from 'qrcode';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,8 @@ function getLocalIP() {
   }
   return 'localhost';
 }
+
+const onlyDigits = (s) => (s || '').replace(/\D/g, '');
 
 const LOCAL_IP = getLocalIP();
 const CLIENT_URL = `http://${LOCAL_IP}:${PORT}/`;
@@ -120,8 +123,42 @@ app.post('/api/fichas', submitLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Consentimentos obrigatórios não foram aceitos' });
     }
 
+    // ===== Resolve o cliente: vincula ao informado, acha por WhatsApp ou cria =====
+    let clienteId = data.clienteId ? parseInt(data.clienteId, 10) : null;
+    if (clienteId) {
+      // preenche dados de contato que faltarem no cliente
+      await prisma.cliente.update({
+        where: { id: clienteId },
+        data: {
+          email: data.email || undefined,
+          cpf: data.cpf || undefined,
+          origem: data.origem || undefined,
+        },
+      }).catch(() => {});
+    } else {
+      const key = onlyDigits(data.whatsapp);
+      if (key.length >= 10) {
+        const todos = await prisma.cliente.findMany({ select: { id: true, whatsapp: true } });
+        const achado = todos.find(c => onlyDigits(c.whatsapp) === key);
+        if (achado) clienteId = achado.id;
+      }
+      if (!clienteId) {
+        const novo = await prisma.cliente.create({
+          data: {
+            nome: data.nome,
+            whatsapp: data.whatsapp,
+            email: data.email || null,
+            cpf: data.cpf || null,
+            origem: data.origem || null,
+          },
+        });
+        clienteId = novo.id;
+      }
+    }
+
     const ficha = await prisma.ficha.create({
       data: {
+        clienteId,
         nome: data.nome,
         cpf: data.cpf,
         rg: data.rg || null,
@@ -289,8 +326,27 @@ app.post('/api/agendamentos', adminOnlyLocalhost, async (req, res) => {
     if (!d.cliente || !d.whatsapp || !d.data || !d.horario) {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
     }
+
+    // resolve/cria o cliente para manter o vínculo
+    let clienteId = d.clienteId ? parseInt(d.clienteId, 10) : null;
+    if (!clienteId) {
+      const key = onlyDigits(d.whatsapp);
+      if (key.length >= 10) {
+        const todos = await prisma.cliente.findMany({ select: { id: true, whatsapp: true } });
+        const achado = todos.find(c => onlyDigits(c.whatsapp) === key);
+        if (achado) clienteId = achado.id;
+      }
+      if (!clienteId) {
+        const novo = await prisma.cliente.create({
+          data: { nome: d.cliente, whatsapp: d.whatsapp },
+        });
+        clienteId = novo.id;
+      }
+    }
+
     const agend = await prisma.agendamento.create({
       data: {
+        clienteId,
         cliente: d.cliente,
         whatsapp: d.whatsapp,
         tipo: d.tipo || null,
@@ -348,6 +404,177 @@ app.delete('/api/agendamentos/:id', adminOnlyLocalhost, async (req, res) => {
   }
 });
 
+// ============ CLIENTES ============
+
+function statusFromAppts(appts) {
+  if (!appts.length) return 'inativo';
+  if (appts.some(a => a.status === 'confirmado' || a.status === 'concluido')) return 'ativo';
+  if (appts.some(a => a.status === 'agendado')) return 'aguardando';
+  return 'inativo';
+}
+
+/**
+ * GET /api/clientes — lista enriquecida (sessões, último agendamento, status, ficha)
+ */
+app.get('/api/clientes', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const clientes = await prisma.cliente.findMany({
+      orderBy: { nome: 'asc' },
+      include: {
+        agendamentos: true,
+        fichas: { select: { id: true }, orderBy: { createdAt: 'desc' } },
+      },
+    });
+    const out = clientes.map(c => {
+      const appts = c.agendamentos;
+      const nonCanc = appts.filter(a => a.status !== 'cancelado');
+      const sorted = [...appts].sort((a, b) =>
+        (b.data + b.horario).localeCompare(a.data + a.horario));
+      const last = sorted[0] || null;
+      return {
+        id: c.id,
+        nome: c.nome,
+        whatsapp: c.whatsapp,
+        email: c.email,
+        cpf: c.cpf,
+        origem: c.origem,
+        obs: c.obs,
+        createdAt: c.createdAt,
+        sessions: nonCanc.length,
+        lastAppt: last ? { data: last.data, horario: last.horario, tipo: last.tipo } : null,
+        status: statusFromAppts(appts),
+        hasFicha: c.fichas.length > 0,
+        fichaId: c.fichas[0] ? c.fichas[0].id : null,
+      };
+    });
+    res.json(out);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao listar clientes' });
+  }
+});
+
+/**
+ * GET /api/clientes/:id — detalhe (contato + agendamentos + fichas)
+ */
+app.get('/api/clientes/:id', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const cliente = await prisma.cliente.findUnique({
+      where: { id },
+      include: {
+        agendamentos: { orderBy: [{ data: 'desc' }, { horario: 'desc' }] },
+        fichas: { orderBy: { createdAt: 'desc' } },
+      },
+    });
+    if (!cliente) return res.status(404).json({ error: 'Cliente não encontrado' });
+    // garante token para o link da ficha (gera na primeira visita)
+    if (!cliente.token) {
+      const upd = await prisma.cliente.update({
+        where: { id }, data: { token: crypto.randomUUID() },
+      });
+      cliente.token = upd.token;
+    }
+    res.json(cliente);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao buscar cliente' });
+  }
+});
+
+/**
+ * GET /api/ficha-prefill/:token — PÚBLICO (acessível na rede local)
+ * Devolve só os dados de identificação para pré-preencher a ficha.
+ * Protegido por token aleatório (evita enumeração por ID).
+ */
+app.get('/api/ficha-prefill/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    if (!token || token.length < 16) return res.status(400).json({ error: 'Token inválido' });
+    const c = await prisma.cliente.findUnique({ where: { token } });
+    if (!c) return res.status(404).json({ error: 'Link inválido ou expirado' });
+    res.json({
+      clienteId: c.id,
+      nome: c.nome,
+      whatsapp: c.whatsapp,
+      email: c.email,
+      cpf: c.cpf,
+      origem: c.origem,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao carregar dados' });
+  }
+});
+
+/**
+ * POST /api/clientes — cadastro rápido (nome + whatsapp obrigatórios)
+ */
+app.post('/api/clientes', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const d = req.body;
+    if (!d.nome || !d.whatsapp) {
+      return res.status(400).json({ error: 'Nome e WhatsApp são obrigatórios' });
+    }
+    const cliente = await prisma.cliente.create({
+      data: {
+        nome: d.nome,
+        whatsapp: d.whatsapp,
+        email: d.email || null,
+        cpf: d.cpf || null,
+        origem: d.origem || null,
+        obs: d.obs || null,
+        token: crypto.randomUUID(),
+      },
+    });
+    res.json({ ok: true, id: cliente.id });
+  } catch (err) {
+    console.error('Erro ao criar cliente:', err);
+    res.status(500).json({ error: 'Erro ao criar cliente' });
+  }
+});
+
+/**
+ * PUT /api/clientes/:id — editar dados de contato
+ */
+app.put('/api/clientes/:id', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const d = req.body;
+    const cliente = await prisma.cliente.update({
+      where: { id },
+      data: {
+        nome: d.nome,
+        whatsapp: d.whatsapp,
+        email: d.email || null,
+        cpf: d.cpf || null,
+        origem: d.origem || null,
+        obs: d.obs || null,
+      },
+    });
+    res.json({ ok: true, id: cliente.id });
+  } catch (err) {
+    console.error('Erro ao atualizar cliente:', err);
+    res.status(500).json({ error: 'Erro ao atualizar cliente' });
+  }
+});
+
+/**
+ * DELETE /api/clientes/:id — remove o cliente e suas fichas (LGPD Art. 18)
+ */
+app.delete('/api/clientes/:id', adminOnlyLocalhost, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    // remove fichas do cliente (dados de saúde sensíveis); agendamentos ficam com clienteId nulo
+    await prisma.ficha.deleteMany({ where: { clienteId: id } });
+    await prisma.cliente.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao excluir cliente' });
+  }
+});
+
 /**
  * GET /api/qr — Retorna o QR code como data URL (base64)
  */
@@ -387,6 +614,10 @@ app.get('/admin/qr', adminOnlyLocalhost, (req, res) => {
 
 app.get('/admin/clientes/:id', adminOnlyLocalhost, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cliente-detalhe.html'));
+});
+
+app.get('/ficha', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'ficha.html'));
 });
 
 app.get('/', (req, res) => {

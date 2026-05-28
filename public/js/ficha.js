@@ -304,6 +304,7 @@ document.getElementById("anamneseForm").addEventListener("submit", async (e) => 
   const dados = Object.fromEntries(formData.entries());
   dados.assinatura = sigCanvas.toDataURL("image/png");
   dados.data_preenchimento = new Date().toISOString();
+  if (linkedClienteId) dados.clienteId = linkedClienteId;
 
   // Converte checkboxes pra boolean (FormData só pega se marcado)
   dados.aceite_termo = form.querySelector("#aceite_termo").checked;
@@ -347,5 +348,39 @@ document.getElementById("anamneseForm").addEventListener("submit", async (e) => 
   }
 });
 
+// ============ PRÉ-PREENCHIMENTO (ficha vinculada a um cliente) ============
+const _params = new URLSearchParams(location.search);
+const fichaToken = _params.get("t");
+let linkedClienteId = _params.get("cliente"); // fallback (uso no proprio PC)
+
+async function prefillFromCliente() {
+  try {
+    let c = null;
+    if (fichaToken) {
+      // endpoint publico (funciona no celular do cliente, na rede local)
+      const res = await fetch("/api/ficha-prefill/" + encodeURIComponent(fichaToken));
+      if (res.ok) { c = await res.json(); linkedClienteId = c.clienteId; }
+    } else if (linkedClienteId) {
+      // fallback so funciona no localhost (uso em tablet do estudio)
+      const res = await fetch("/api/clientes/" + linkedClienteId);
+      if (res.ok) c = await res.json();
+    }
+    if (!c) return;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+    set("nome", c.nome);
+    set("whatsapp", c.whatsapp);
+    set("email", c.email);
+    set("cpf", c.cpf);
+    if (c.origem) { const o = document.getElementById("origem"); if (o) o.value = c.origem; }
+
+    const header = document.querySelector(".masthead__title p");
+    if (header) header.textContent = "Ficha de " + c.nome;
+  } catch (err) {
+    // se falhar, segue como ficha normal (anonima)
+  }
+}
+
 // ============ INIT ============
 showStep(1);
+prefillFromCliente();
