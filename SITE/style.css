@@ -59,66 +59,6 @@ body {
   height: 100%;
 }
 
-.wrap {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.button {
-  font-family: var(--font-display);
-  min-width: 80px;
-  min-height: 15px;
-  display: inline-flex;
-  font-size: 16px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  letter-spacing: 1px;
-  font-weight: 700;
-  color: var(--mb-bg-deep);
-  background: var(--mb-muted);
-  border: 2px solid var(--mb-muted);
-  border-radius: 10px;
-  transition: all 0.3s ease-in-out 0s;
-  cursor: pointer;
-  outline: none;
-  position: relative;
-  padding: 4px 15px;
-}
-
-.button:hover,
-.button:focus {
-  border: 2px solid var(--mb-line);
-  background: black;
-  color: var(--mb-paper);
-}
-
-.button:hover::before,
-.button:focus::before {
-  opacity: 1;
-}
-
-.button:hover::after,
-.button:focus::after {
-  animation: none;
-  display: none;
-}
-
-@keyframes ring {
-  0% {
-    width: 30px;
-    height: 30px;
-    opacity: 1;
-  }
-  100% {
-    width: 300px;
-    height: 300px;
-    opacity: 0;
-  }
-}
-
 /* ================================================================
    3. HEADER — barra superior fixa (presente em todas as páginas)
    ================================================================ */
@@ -262,8 +202,22 @@ body {
   z-index: 99;
 }
 
-.utility-strip {
-  font-size: 1.2rem;
+.local {
+  position: absolute;
+  padding: 0.18rem 0.89rem;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  z-index: 100;
+}
+.local::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+  border-radius: 5px;
 }
 
 /* whatssap logo */
