@@ -10,6 +10,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&amp;family=Jost:wght@300;400;500&amp;family=UnifrakturCook:wght@700&amp;display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!-- ================================================================
@@ -28,7 +32,7 @@
       <nav class="main-nav">
         <div class="nav-links">
           <a href="index.html" class="active">Home</a>
-          <a href="Galeria.html">Galeria</a>
+          <a href="#galeria">Galeria</a>
           <a href="sobre.html">Sobre</a>
           <a href="contato.html">Contato</a>
           <a href="Endereço.html">Endereço</a>
@@ -59,9 +63,9 @@
     </header>
 
     <!-- ================================================================
-       HERO 
+       HOME 
        ================================================================ -->
-    <section class="hero">
+    <section class="hero" id="inicio">
       <div class="container-hero">
         <div class="pessoa-img">
           <img src="img/pessoa.png" alt="nome Pessôa" />
@@ -90,6 +94,108 @@
       </div>
     </section>
 
+    <!-- ================= GALERIA ================= -->
+    <section class="galeria" id="galeria">
+      <h2 class="g-titulo">Galeria</h2>
+      <div class="g-fio"></div>
+
+      <div class="g-barra">
+        <h3 class="g-sub">Trabalhos na pele</h3>
+
+        <div class="g-filtros">
+          <button class="is-ativo" data-filtro="todos">Todos</button>
+          <button data-filtro="blackwork">Blackwork</button>
+          <button data-filtro="fineline">Fineline</button>
+          <button data-filtro="realismo">Realismo</button>
+          <button data-filtro="lettering">Lettering</button>
+        </div>
+      </div>
+
+      <div class="g-carrossel">
+        <button class="g-seta g-prev" aria-label="Imagem anterior">
+          &#8249;
+        </button>
+
+        <div class="g-trilho" id="gTrilho">
+          <!-- TROQUE o src por: imagens/tattoo-01.jpg  (mantenha o data-cat) -->
+          <figure class="g-item" data-cat="blackwork">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E01%3C/text%3E%3C/svg%3E"
+              alt="Tatuagem blackwork no braço"
+              loading="lazy"
+            />
+            <figcaption>Blackwork — braço fechado</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="fineline">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E02%3C/text%3E%3C/svg%3E"
+              alt="Tatuagem fineline no antebraço"
+              loading="lazy"
+            />
+            <figcaption>Fineline — antebraço</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="realismo">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E03%3C/text%3E%3C/svg%3E"
+              alt="Tatuagem realismo preto e cinza"
+              loading="lazy"
+            />
+            <figcaption>Realismo — preto e cinza</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="lettering">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E04%3C/text%3E%3C/svg%3E"
+              alt="Lettering gótico nas costas"
+              loading="lazy"
+            />
+            <figcaption>Lettering — gótico</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="blackwork">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E05%3C/text%3E%3C/svg%3E"
+              alt="Blackwork geométrico na perna"
+              loading="lazy"
+            />
+            <figcaption>Blackwork — geométrico</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="realismo">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E06%3C/text%3E%3C/svg%3E"
+              alt="Retrato realista no braço"
+              loading="lazy"
+            />
+            <figcaption>Realismo — retrato</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="fineline">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E07%3C/text%3E%3C/svg%3E"
+              alt="Traço fino floral"
+              loading="lazy"
+            />
+            <figcaption>Fineline — floral</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="blackwork">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E08%3C/text%3E%3C/svg%3E"
+              alt="Blackwork oriental"
+              loading="lazy"
+            />
+            <figcaption>Blackwork — oriental</figcaption>
+          </figure>
+        </div>
+
+        <button class="g-seta g-next" aria-label="Próxima imagem">
+          &#8250;
+        </button>
+      </div>
+    </section>
     <!-- logo whatssap -->
     <!-- 
       <div class="logo-whatssap">
