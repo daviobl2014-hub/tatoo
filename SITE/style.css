@@ -27,6 +27,9 @@
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --font-serif: 'Playfair Display', serif;
 }
+/* ================================================================
+   2. RESET E BASE
+   ================================================================ */
 
 * {
   margin: 0;
@@ -39,10 +42,12 @@ html {
 }
 
 body {
+  min-height: 100vh;
   line-height: 1.5;
   font-family: var(--font-mono);
   font-size: 1.5rem;
   background: black;
+  color: var(--mb-paper);
 }
 
 a {
@@ -55,116 +60,109 @@ img {
   display: block;
 }
 
-html,
-body {
-  height: 100%;
-}
-
 /* ================================================================
    3. HEADER — barra superior fixa (presente em todas as páginas)
    ================================================================ */
 
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  z-index: 100;
   background: black;
   border-bottom: 1px solid var(--mb-line);
   transition:
     background 0.3s ease,
     backdrop-filter 0.3s ease;
+
+  /* ---------- logo (esquerda) ---------- */
+  & .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 2.8rem;
+    cursor: pointer;
+
+    & .logo {
+      transition: transform 0.3s ease;
+      width: 4rem;
+      height: 6rem;
+
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
+  }
+
+  /* ---------- navegação (centro) ---------- */
+  & .main-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+
+    & .nav-links {
+      display: flex;
+      gap: 2.2rem;
+
+      & a {
+        color: var(--mb-muted);
+        font-size: 1.3rem;
+        font-weight: 500;
+        padding-bottom: 2px;
+        border-bottom: 1px solid transparent;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+
+        &.active,
+        &:hover {
+          color: var(--mb-paper);
+          border-bottom-color: var(--mb-vinho);
+        }
+      }
+    }
+  }
+
+  /* ---------- redes sociais (direita) ---------- */
+  & .utility-strip {
+    display: flex;
+    justify-content: center;
+    padding: 0.8rem 0;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--mb-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+
+    & .social {
+      display: flex;
+      gap: 0.6rem;
+
+      & a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.4rem;
+        height: 2.4rem;
+      }
+
+      & i {
+        font-size: 1.4rem;
+        color: #fff;
+        transition: transform 0.2s ease;
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+    }
+  }
 }
 
-/* Logo */
-
-.logo {
-  width: 4rem;
-  height: 6rem;
-}
-
-/* Faixa utilitária (SYS · SP · STATUS ONLINE) */
-.utility-strip {
-  display: flex;
-  justify-content: center;
-  padding: 8px 0px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--mb-muted);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  align-items: center;
-}
-
-.utility-strip .social {
-  display: flex;
-  gap: 10px;
-}
-.utility-strip .social a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  text-decoration: none;
-}
-
-.utility-strip .social i {
-  font-size: 14px; /* tamanho pequeno */
-  color: #fff;
-  transition: 0.3s;
-}
-
-/* Navegação principal */
-.main-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0px;
-}
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  cursor: pointer;
-}
-.nav-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--mb-line);
-}
-.nav-links {
-  display: flex;
-  gap: 22px;
-}
-.nav-links a {
-  color: var(--mb-muted);
-  font-size: 13px;
-  font-weight: 500;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
-  transition:
-    color 0.2s,
-    border-color 0.2s;
-}
-.nav-links a.active,
-.nav-links a:hover {
-  color: var(--mb-paper);
-  border-bottom-color: var(--mb-vinho);
-}
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.nav-phone {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--mb-paper-dim);
-  letter-spacing: 0.15em;
-}
-
-/* Hero */
+/* ================================================================
+   4. HERO
+   ================================================================ */
 
 .hero {
   min-height: 90vh;
@@ -178,50 +176,147 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-}
 
-.container-hero {
+  /* ---------- faixa preta ---------- */
+  & .local {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: black;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: white;
+    z-index: 101;
+  }
+  /* ---------- palco das 3 imagens ---------- */
+  & .container-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    max-width: 130rem;
+    margin: 0 auto;
+  }
+
+  & .pessoa-img,
+  & .tatoo-img {
+    height: 18rem;
+    width: 45rem;
+    position: relative;
+  }
+
+  & .lucas-img {
+    width: 40rem;
+    position: relative;
+    z-index: 99;
+  }
+
+  /* --- lado esquerdo --- */
+  & .pessoa-img {
+    margin-right: -9%;
+    margin-top: -12.5rem; /* Ajuste fino para alinha img */
+
+    & .texto-hero {
+      left: 0;
+      text-align: left;
+      padding-left: 4rem;
+      letter-spacing: 0.2rem;
+
+      & p {
+        font-size: 1.6rem;
+        line-height: 1.6;
+        max-width: 28rem;
+        letter-spacing: 0.1rem;
+      }
+    }
+  }
+
+  /* --- lado direito --- */
+  & .tatoo-img {
+    margin-left: -10%;
+    margin-top: -16rem; /* Ajuste fino para alinha img */
+
+    & .texto-hero {
+      right: 0;
+      left: auto;
+      text-align: right;
+      padding-right: 2rem;
+      width: fit-content;
+      align-items: center;
+    }
+  }
+  /* --- caixa de texto (comum aos dois lados) --- */
+  & .texto-hero {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    gap: 2rem;
+    position: absolute;
+    top: calc(100% + 0.8rem);
+    width: 35rem;
+    color: var(--mb-paper-dim);
+    z-index: 100;
+
+    & .linha {
+      width: 60%;
+      height: 1px;
+      background: var(--mb-paper);
+    }
+
+    & h1 {
+      font-family: var(--font-display);
+      font-size: 2.6rem;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+    }
+
+    & p {
+      font-size: 1.4rem;
+      color: var(--mb-paper-dim);
+    }
+  }
+}
+/* ================================================================
+   5. COMPONENTES — reutilizáveis em qualquer página
+   ================================================================ */
+
+.btn-hero {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  width: 100%;
-}
-
-.lucas-img {
-  width: 40rem;
-  z-index: 99;
-  position: relative;
-}
-.pessoa-img,
-.tatoo-img {
-  width: 45rem;
-  max-width: 45rem;
-}
-
-.pessoa-img {
-  margin-right: -9%;
-  margin-top: -15rem;
-}
-
-.tatoo-img {
-  margin-left: -10%;
-  margin-top: -15rem;
-}
-
-.local {
+  gap: 0.8rem;
+  padding: 1.2rem 2.4rem;
+  margin-top: 5rem;
+  background: black;
+  color: var(--mb-paper);
+  border: solid 2px var(--mb-paper);
   text-transform: uppercase;
-  position: absolute;
-  padding: 0.1rem 0.89rem;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  z-index: 100;
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.9),
-    0 2px 8px rgba(0, 0, 0, 0.7),
-    0 0 24px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.15em;
+  font-size: 1.3rem;
+  border-radius: 4px;
+  transition:
+    background 0.3s,
+    color 0.3s,
+    border-color 0.3s;
+  align-self: center;
+
+  & .fa-brands {
+    font-size: 1.8rem;
+  }
+
+  &:hover {
+    background: var(--mb-paper);
+    color: black;
+    font-weight: bold;
+
+    & .fa-brands {
+      color: green;
+    }
+  }
 }
 
 /* whatssap logo */
