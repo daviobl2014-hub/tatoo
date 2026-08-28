@@ -222,6 +222,7 @@ img {
     margin-top: -12.5rem; /* Ajuste fino para alinha img */
 
     & .texto-hero {
+      text-shadow: 0 0 2.6rem rgba(255, 255, 255, 0.14);
       left: 0;
       text-align: left;
       padding-left: 4rem;
@@ -287,13 +288,18 @@ img {
    ================================================================ */
 
 .galeria {
-  scroll-margin-top: 1rem;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url(img/FUMACA.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  scroll-margin-top: 6rem;
   padding: 9rem 4rem;
   max-width: 150rem;
-  margin: 0 auto;
+  margin: 2px auto;
+  /* border-top: 2px solid rgb(99, 98, 98); */
 
   /* ---------- título ---------- */
-  & .g-titulo {
+  & .titulo {
     font-family: var(--font-display);
     font-weight: 700;
     font-size: clamp(4.2rem, 6vw, 7rem);
@@ -303,7 +309,7 @@ img {
     text-shadow: 0 0 2.6rem rgba(255, 255, 255, 0.14);
   }
 
-  & .g-fio {
+  & .fio {
     width: 7rem;
     height: 1px;
     background: var(--mb-vinho);
@@ -311,7 +317,7 @@ img {
   }
 
   /* ---------- barra: subtítulo + filtros ---------- */
-  & .g-barra {
+  & .barra {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -321,7 +327,7 @@ img {
     padding-bottom: 1.6rem;
     margin-bottom: 3.4rem;
 
-    & .g-filtros {
+    & .filtros {
       display: flex;
       gap: 2.2rem;
       flex-wrap: wrap;
@@ -355,7 +361,7 @@ img {
       }
     }
 
-    & .g-sub {
+    & .sub {
       font-family: var(--font-titulo);
       font-weight: 400;
       font-size: 2.2rem;
@@ -366,19 +372,34 @@ img {
   }
 
   /* ---------- carrossel ---------- */
-  & .g-carrossel {
+  & .carrossel {
     position: relative;
 
-    & .g-trilho {
+    & .trilho {
+      --cards: 4;
+      --gap: 1.4rem;
+
       display: grid;
       grid-auto-flow: column;
-      grid-auto-columns: 27rem;
-      gap: 1.4rem;
+      grid-auto-columns: calc(
+        (100% - (var(--cards) - 1) * var(--gap)) / var(--cards)
+      );
+      gap: var(--gap);
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
       padding-bottom: 0.6rem;
       scrollbar-width: none;
+
+      @media (max-width: 1100px) {
+        --cards: 3;
+      }
+      @media (max-width: 800px) {
+        --cards: 2;
+      }
+      @media (max-width: 520px) {
+        --cards: 1;
+      }
 
       &::-webkit-scrollbar {
         display: none;
@@ -387,6 +408,7 @@ img {
 
     /* --- cada foto --- */
     & .g-item {
+      cursor: pointer;
       margin: 0;
       position: relative;
       scroll-snap-align: start;
@@ -395,11 +417,15 @@ img {
       background: var(--mb-bg-deep);
       border: 1px solid var(--mb-line-soft);
 
+      &[hidden] {
+        display: none;
+      }
+
       & img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: grayscale(1) brightness(0.82);
+        filter: blur(1px) brightness(0.82);
         transition:
           filter 0.45s ease,
           transform 0.6s ease;
@@ -424,7 +450,7 @@ img {
 
       &:hover {
         & img {
-          filter: grayscale(0) brightness(1);
+          filter: blur(0px) brightness(1);
           transform: scale(1.05);
         }
         & figcaption {
@@ -434,7 +460,7 @@ img {
     }
 
     /* --- setas --- */
-    & .g-seta {
+    & .seta {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
@@ -477,12 +503,98 @@ img {
       }
     }
 
-    & .g-prev {
+    & .prev {
       left: -1.4rem;
     }
-    & .g-next {
+    & .next {
       right: -1.4rem;
     }
+  }
+}
+
+.lightbox {
+  margin: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  max-width: 96vw;
+  max-height: 96vh;
+  overflow: visible;
+  color: var(--mb-paper-dim);
+
+  /* ---------- o fundo embaçado ---------- */
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+  }
+
+  & img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 88vh;
+    border: 1px solid var(--mb-line);
+  }
+
+  & .lightbox-legenda {
+    margin-top: 1.2rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  & .lightbox-fechar {
+    position: absolute;
+    top: 0.5;
+    right: -5rem;
+    width: 3.6rem;
+    height: 3.6rem;
+    background: none;
+    border: 1px solid var(--mb-line);
+    border-radius: 50%;
+    color: var(--mb-paper-dim);
+    font-size: 2.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background 0.25s,
+      border-color 0.25s;
+
+    &:hover {
+      background: var(--mb-vinho);
+      border-color: var(--mb-vinho);
+      color: #fff;
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--mb-vinho);
+      outline-offset: 3px;
+    }
+  }
+
+  /* ---------- o "salto" ao abrir ---------- */
+  &[open] {
+    animation: lightbox-entra 0.28s ease-out;
+
+    &::backdrop {
+      animation: lightbox-fundo 0.28s ease-out;
+    }
+  }
+}
+
+@keyframes lightbox-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+}
+
+@keyframes lightbox-fundo {
+  from {
+    opacity: 0;
   }
 }
 
@@ -529,14 +641,27 @@ img {
 
 .logo-whatssap {
   position: fixed;
-  right: 1rem;
-  bottom: 3rem;
-
+  right: 3rem;
+  bottom: 4rem;
   width: 4rem;
   height: 4rem;
-  transition: all 0.3s ease-in-out 0s;
-}
+  z-index: 998;
+  /* estado escondido */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(1.5rem);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
 
-.logo-whatssap:hover {
-  transform: translate(2px, 5px);
+  /* estado visível — o JS liga esta classe */
+  &.visivel {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
 }

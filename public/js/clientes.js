@@ -40,6 +40,18 @@ function maskPhone(v) {
 function maskCPF(v) {
   return v.replace(/\D/g,'').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2').slice(0,14);
 }
+function validarCPF(cpf) {
+  cpf = (cpf || '').replace(/\D/g, '');
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  let soma = 0, resto;
+  for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+  resto = (soma * 10) % 11; if (resto >= 10) resto = 0;
+  if (resto !== parseInt(cpf[9])) return false;
+  soma = 0;
+  for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+  resto = (soma * 10) % 11; if (resto >= 10) resto = 0;
+  return resto === parseInt(cpf[10]);
+}
 
 // ============ LOAD ============
 async function load() {
@@ -301,6 +313,7 @@ form.addEventListener('submit', async (e) => {
     obs: document.getElementById('cl_obs').value.trim() || null,
   };
   if (!payload.nome || !payload.whatsapp) { alert('Nome e WhatsApp são obrigatórios.'); return; }
+  if (payload.cpf && !validarCPF(payload.cpf)) { alert('CPF inválido. Confira os números.'); return; }
 
   const url = id ? `/api/clientes/${id}` : '/api/clientes';
   const method = id ? 'PUT' : 'POST';

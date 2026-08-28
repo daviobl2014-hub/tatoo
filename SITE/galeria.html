@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pessôa Tattoo — Galeria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --breu:#050505;
+  --tinta:#111111;
+  --agulha:#ddd8d2;
+  --cinza:#6f6a65;
+  --sangue:#8f1013;
+  --display:"UnifrakturCook", serif;
+  --serif:"Cormorant Garamond", Georgia, serif;
+  --sans:"Jost", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--breu);color:var(--agulha);font-family:var(--sans)}
+
+/* ============ SEÇÃO GALERIA ============ */
+.g-secao{padding:90px 40px;max-width:1500px;margin:0 auto}
+
+.g-titulo{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(2.6rem,6vw,4.4rem);
+  text-align:center;
+  margin:0 0 8px;
+  color:#fff;
+  text-shadow:0 0 26px rgba(255,255,255,.14);
+}
+.g-fio{width:70px;height:1px;background:var(--sangue);margin:0 auto 54px}
+
+/* linha: h3 esquerda + h3 filtro direita */
+.g-barra{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:28px;flex-wrap:wrap;
+  border-bottom:1px solid #1c1c1c;
+  padding-bottom:16px;margin-bottom:34px;
+}
+.g-sub{
+  font-family:var(--serif);font-weight:400;
+  font-size:1.35rem;letter-spacing:.14em;text-transform:uppercase;
+  margin:0;color:var(--agulha);
+}
+.g-filtro-bloco{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.g-filtro-titulo{
+  font-family:var(--serif);font-weight:400;
+  font-size:.95rem;letter-spacing:.22em;text-transform:uppercase;
+  margin:0;color:var(--cinza);
+}
+.g-filtros{display:flex;gap:6px;flex-wrap:wrap}
+.g-filtros button{
+  position:relative;background:none;border:0;cursor:pointer;
+  font-family:var(--sans);font-weight:300;font-size:.82rem;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cinza);padding:6px 12px;transition:color .25s;
+}
+.g-filtros button:hover{color:var(--agulha)}
+.g-filtros button::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:0;
+  height:1px;background:var(--sangue);
+  transform:scaleX(0);transform-origin:center;transition:transform .3s;
+}
+.g-filtros button.is-ativo{color:#fff}
+.g-filtros button.is-ativo::after{transform:scaleX(1)}
+
+/* ============ CARROSSEL ============ */
+.g-carrossel{position:relative}
+.g-trilho{
+  display:grid;grid-auto-flow:column;grid-auto-columns:270px;gap:14px;
+  overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  padding-bottom:6px;scrollbar-width:none;
+}
+.g-trilho::-webkit-scrollbar{display:none}
+
+.g-item{
+  margin:0;scroll-snap-align:start;position:relative;
+  aspect-ratio:3/4;overflow:hidden;background:var(--tinta);
+  border:1px solid #191919;
+}
+.g-item img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:grayscale(1) brightness(.82);
+  transition:filter .45s ease,transform .6s ease;
+}
+.g-item:hover img{filter:grayscale(0) brightness(1);transform:scale(1.05)}
+.g-item figcaption{
+  position:absolute;left:0;right:0;bottom:0;
+  font-family:var(--sans);font-weight:300;font-size:.72rem;
+  letter-spacing:.18em;text-transform:uppercase;color:#cfcac4;
+  padding:26px 14px 12px;
+  background:linear-gradient(to top,rgba(0,0,0,.88),transparent);
+  opacity:0;transition:opacity .35s;
+}
+.g-item:hover figcaption{opacity:1}
+
+/* setas */
+.g-seta{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(8,8,8,.82);border:1px solid #2a2a2a;color:var(--agulha);
+  font-family:var(--serif);font-size:1.5rem;line-height:1;
+  cursor:pointer;z-index:3;transition:background .25s,border-color .25s,opacity .25s;
+}
+.g-seta:hover{background:var(--sangue);border-color:var(--sangue);color:#fff}
+.g-seta[disabled]{opacity:.22;cursor:default}
+.g-seta[disabled]:hover{background:rgba(8,8,8,.82);border-color:#2a2a2a;color:var(--agulha)}
+.g-prev{left:-14px}
+.g-next{right:-14px}
+
+.g-seta:focus-visible,.g-filtros button:focus-visible{outline:1px solid var(--sangue);outline-offset:3px}
+
+@media (max-width:760px){
+  .g-secao{padding:60px 20px}
+  .g-trilho{grid-auto-columns:68vw}
+  .g-prev{left:-6px} .g-next{right:-6px}
+  .g-barra{align-items:flex-start;flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){
+  .g-trilho{scroll-behavior:auto}
+  .g-item img{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= GALERIA ================= -->
+<section class="g-secao" id="galeria">
+
+  <h2 class="g-titulo">Galeria</h2>
+  <div class="g-fio"></div>
+
+  <div class="g-barra">
+    <h3 class="g-sub">Trabalhos na pele</h3>
+
+    <div class="g-filtro-bloco">
+      <h3 class="g-filtro-titulo">Filtro</h3>
+      <div class="g-filtros">
+        <button class="is-ativo" data-filtro="todos">Todos</button>
+        <button data-filtro="blackwork">Blackwork</button>
+        <button data-filtro="fineline">Fineline</button>
+        <button data-filtro="realismo">Realismo</button>
+        <button data-filtro="lettering">Lettering</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="g-carrossel">
+    <button class="g-seta g-prev" aria-label="Imagem anterior">&#8249;</button>
+
+    <div class="g-trilho" id="gTrilho">
+      <!-- TROQUE o src por: imagens/tattoo-01.jpg  (mantenha o data-cat) -->
+      <figure class="g-item" data-cat="blackwork">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E01%3C/text%3E%3C/svg%3E" alt="Tatuagem blackwork no braço" loading="lazy">
+        <figcaption>Blackwork — braço fechado</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="fineline">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E02%3C/text%3E%3C/svg%3E" alt="Tatuagem fineline no antebraço" loading="lazy">
+        <figcaption>Fineline — antebraço</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="realismo">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E03%3C/text%3E%3C/svg%3E" alt="Tatuagem realismo preto e cinza" loading="lazy">
+        <figcaption>Realismo — preto e cinza</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="lettering">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E04%3C/text%3E%3C/svg%3E" alt="Lettering gótico nas costas" loading="lazy">
+        <figcaption>Lettering — gótico</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="blackwork">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E05%3C/text%3E%3C/svg%3E" alt="Blackwork geométrico na perna" loading="lazy">
+        <figcaption>Blackwork — geométrico</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="realismo">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E06%3C/text%3E%3C/svg%3E" alt="Retrato realista no braço" loading="lazy">
+        <figcaption>Realismo — retrato</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="fineline">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E07%3C/text%3E%3C/svg%3E" alt="Traço fino floral" loading="lazy">
+        <figcaption>Fineline — floral</figcaption>
+      </figure>
+
+      <figure class="g-item" data-cat="blackwork">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E08%3C/text%3E%3C/svg%3E" alt="Blackwork oriental" loading="lazy">
+        <figcaption>Blackwork — oriental</figcaption>
+      </figure>
+    </div>
+
+    <button class="g-seta g-next" aria-label="Próxima imagem">&#8250;</button>
+  </div>
+</section>
+
+<script>
+(function(){
+  const trilho = document.getElementById('gTrilho');
+  const prev   = document.querySelector('.g-prev');
+  const next   = document.querySelector('.g-next');
+  const botoes = document.querySelectorAll('.g-filtros button');
+
+  function passo(){
+    const item = trilho.querySelector('.g-item:not([hidden])');
+    if(!item) return 280;
+    const gap = parseFloat(getComputedStyle(trilho).columnGap) || 14;
+    return item.offsetWidth + gap;
+  }
+
+  function atualizaSetas(){
+    const fim = trilho.scrollWidth - trilho.clientWidth - 2;
+    prev.disabled = trilho.scrollLeft <= 2;
+    next.disabled = trilho.scrollLeft >= fim;
+  }
+
+  prev.addEventListener('click', () => trilho.scrollBy({left:-passo()}));
+  next.addEventListener('click', () => trilho.scrollBy({left: passo()}));
+  trilho.addEventListener('scroll', atualizaSetas, {passive:true});
+  window.addEventListener('resize', atualizaSetas);
+
+  botoes.forEach(btn => btn.addEventListener('click', () => {
+    botoes.forEach(b => b.classList.remove('is-ativo'));
+    btn.classList.add('is-ativo');
+    const cat = btn.dataset.filtro;
+    trilho.querySelectorAll('.g-item').forEach(item => {
+      item.hidden = !(cat === 'todos' || item.dataset.cat === cat);
+    });
+    trilho.scrollTo({left:0});
+    setTimeout(atualizaSetas, 50);
+  }));
+
+  atualizaSetas();
+})();
+</script>
+</body>
+</html>

@@ -31,7 +31,7 @@
 
       <nav class="main-nav">
         <div class="nav-links">
-          <a href="index.html" class="active">Home</a>
+          <a href="#inicio" class="active">Home</a>
           <a href="#galeria">Galeria</a>
           <a href="sobre.html">Sobre</a>
           <a href="contato.html">Contato</a>
@@ -82,7 +82,10 @@
         <div class="tatoo-img">
           <img src="img/tatoo.png" alt="tattoo" />
           <div class="texto-hero">
-            <a href="https://wa.me/5524981190914" class="btn-hero"
+            <a
+              href="https://wa.me/5524992363035"
+              class="btn-hero"
+              target="_blank"
               ><i class="fa-brands fa-whatsapp"></i>Agendar minha Tattoo</a
             >
             <p>Atendimento Exclusivo via WhatsApp</p>
@@ -96,27 +99,24 @@
 
     <!-- ================= GALERIA ================= -->
     <section class="galeria" id="galeria">
-      <h2 class="g-titulo">Galeria</h2>
-      <div class="g-fio"></div>
+      <h2 class="titulo">Galeria</h2>
+      <div class="fio"></div>
 
-      <div class="g-barra">
-        <h3 class="g-sub">Trabalhos na pele</h3>
+      <div class="barra">
+        <h3 class="sub">Trabalhos na pele</h3>
 
-        <div class="g-filtros">
+        <div class="filtros">
           <button class="is-ativo" data-filtro="todos">Todos</button>
           <button data-filtro="blackwork">Blackwork</button>
           <button data-filtro="fineline">Fineline</button>
           <button data-filtro="realismo">Realismo</button>
-          <button data-filtro="lettering">Lettering</button>
         </div>
       </div>
 
-      <div class="g-carrossel">
-        <button class="g-seta g-prev" aria-label="Imagem anterior">
-          &#8249;
-        </button>
+      <div class="carrossel">
+        <button class="seta prev" aria-label="Imagem anterior">&#8249;</button>
 
-        <div class="g-trilho" id="gTrilho">
+        <div class="trilho">
           <!-- TROQUE o src por: imagens/tattoo-01.jpg  (mantenha o data-cat) -->
           <figure class="g-item" data-cat="blackwork">
             <img
@@ -129,29 +129,25 @@
 
           <figure class="g-item" data-cat="fineline">
             <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E02%3C/text%3E%3C/svg%3E"
+              src="img/fine1.jpg"
               alt="Tatuagem fineline no antebraço"
               loading="lazy"
             />
-            <figcaption>Fineline — antebraço</figcaption>
+            <figcaption>Fineline — Costas</figcaption>
           </figure>
 
           <figure class="g-item" data-cat="realismo">
             <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E03%3C/text%3E%3C/svg%3E"
+              src="img/realismo1.jpg"
               alt="Tatuagem realismo preto e cinza"
               loading="lazy"
             />
             <figcaption>Realismo — preto e cinza</figcaption>
           </figure>
 
-          <figure class="g-item" data-cat="lettering">
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E04%3C/text%3E%3C/svg%3E"
-              alt="Lettering gótico nas costas"
-              loading="lazy"
-            />
-            <figcaption>Lettering — gótico</figcaption>
+          <figure class="g-item" data-cat="fineline">
+            <img src="img/fine3.jpg" alt="Traço fino floral" loading="lazy" />
+            <figcaption>Fineline — floral</figcaption>
           </figure>
 
           <figure class="g-item" data-cat="blackwork">
@@ -172,13 +168,22 @@
             <figcaption>Realismo — retrato</figcaption>
           </figure>
 
-          <figure class="g-item" data-cat="fineline">
+          <figure class="g-item" data-cat="blackwork">
+            <img src="img/fine42.jpg" alt="Blackwork oriental" loading="lazy" />
+            <figcaption>Blackwork — oriental</figcaption>
+          </figure>
+          <figure class="g-item" data-cat="realismo">
             <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E07%3C/text%3E%3C/svg%3E"
-              alt="Traço fino floral"
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E06%3C/text%3E%3C/svg%3E"
+              alt="Retrato realista no braço"
               loading="lazy"
             />
-            <figcaption>Fineline — floral</figcaption>
+            <figcaption>Realismo — retrato</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="fineline">
+            <img src="img/fine2.jpg" alt="Traço fino floral" loading="lazy" />
+            <figcaption>Fineline — Braço</figcaption>
           </figure>
 
           <figure class="g-item" data-cat="blackwork">
@@ -189,20 +194,47 @@
             />
             <figcaption>Blackwork — oriental</figcaption>
           </figure>
+          <figure class="g-item" data-cat="realismo">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23141414'/%3E%3Ctext x='300' y='415' fill='%233a3a3a' font-family='serif' font-size='60' text-anchor='middle'%3E06%3C/text%3E%3C/svg%3E"
+              alt="Retrato realista no braço"
+              loading="lazy"
+            />
+            <figcaption>Realismo — retrato</figcaption>
+          </figure>
+
+          <figure class="g-item" data-cat="fineline">
+            <img
+              src="img/fine4.jpg"
+              alt="Traço fino Borboleta"
+              loading="lazy"
+            />
+            <figcaption>Fineline — Borboleta</figcaption>
+          </figure>
         </div>
 
-        <button class="g-seta g-next" aria-label="Próxima imagem">
-          &#8250;
-        </button>
+        <button class="seta next" aria-label="Próxima imagem">&#8250;</button>
       </div>
     </section>
-    <!-- logo whatssap -->
-    <!-- 
-      <div class="logo-whatssap">
-        <a href="https://wa.me/5524981190914" class=""
-          ><img src="img/whatssap.png" alt="whatssap MasterBord"
-        /></a>
 
-      </div> -->
+    <!-- logo whatssap -->
+    <a
+      href="https://wa.me/5524992363035"
+      class="logo-whatssap"
+      target="_blank"
+      aria-label="Falar no WhatsApp"
+    >
+      <img src="img/whatssap.png" alt="" />
+    </a>
+
+    <!-- pop up dialog das imagens carrossel -->
+
+    <dialog class="lightbox" id="lightbox">
+      <button class="lightbox-fechar" aria-label="Fechar">&times;</button>
+      <img src="" alt="" />
+      <p class="lightbox-legenda"></p>
+    </dialog>
+
+    <script src="js/main.js"></script>
   </body>
 </html>

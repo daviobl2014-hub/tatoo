@@ -86,7 +86,57 @@ O que cada um faz:
 
 
 ----------------------------------------------------------
-5) RODAR O SISTEMA (no dia a dia)
+5) LIBERAR ACESSO PELO CELULAR (FIREWALL + REDE)
+   - so na primeira vez, neste PC
+----------------------------------------------------------
+
+Para os clientes abrirem a ficha pelo celular (QR code) na
+rede do estudio, o Windows precisa LIBERAR a porta 3000 e o
+programa "node". Sem isso, o painel funciona no PC mas
+NENHUM outro aparelho (celular, outro PC) consegue acessar.
+
+PASSO 1 - Liberar no Firewall
+  Abra a PowerShell COMO ADMINISTRADOR:
+    Iniciar -> digite "PowerShell" -> botao direito em
+    "Windows PowerShell" -> "Executar como administrador"
+
+  Cole os 3 comandos abaixo, um de cada vez:
+
+    New-NetFirewallRule -DisplayName "Black Ink Studio (3000)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3000 -Profile Any
+
+    Get-NetFirewallRule -Direction Inbound -Action Block | Where-Object { ($_ | Get-NetFirewallApplicationFilter -ErrorAction SilentlyContinue).Program -like "*\node.exe" } | Remove-NetFirewallRule
+
+    New-NetFirewallRule -DisplayName "Node.js (Black Ink Studio)" -Direction Inbound -Action Allow -Program "C:\Program Files\nodejs\node.exe" -Profile Any
+
+  O 1o libera a porta 3000; o 2o REMOVE qualquer bloqueio do
+  node (bloqueio vence o "permitir"); o 3o libera o node na
+  entrada. Faz uma vez so, fica valendo pra sempre.
+
+  Se o caminho do node for diferente, descubra com:
+      (Get-Command node).Source
+  e troque no 3o comando.
+
+PASSO 2 - Mesma rede
+  TODOS os aparelhos (PC, celular, outros) precisam estar na
+  MESMA rede WiFi e na mesma faixa de IP (ex: todos em
+  192.168.0.x). Redes "Visitante"/"Guest" geralmente isolam
+  os aparelhos e NAO funcionam.
+
+PASSO 3 - Descobrir o endereco e testar
+  O endereco certo aparece no painel em "QR Code", ou no
+  terminal quando o servidor inicia
+  (ex: http://192.168.0.31:3000/).
+  No celular, escaneie o QR ou digite esse endereco no
+  navegador. Deve abrir a ficha.
+
+OBS: o IP do PC pode mudar quando o roteador reinicia. Se o
+QR parar de funcionar, confira o endereco novo no painel.
+Para fixar de vez, peca "reserva de IP" (DHCP reservation)
+para este PC nas configuracoes do roteador.
+
+
+----------------------------------------------------------
+6) RODAR O SISTEMA (no dia a dia)
 ----------------------------------------------------------
 
 OPCAO A - Pelo icone de bandeja (recomendado):
@@ -119,7 +169,7 @@ OPCAO B - Manualmente pelo terminal (para ver logs):
 
 
 ----------------------------------------------------------
-6) ENDERECOS DE ACESSO
+7) ENDERECOS DE ACESSO
 ----------------------------------------------------------
 
 Painel administrativo (SO neste computador):
@@ -143,7 +193,7 @@ apenas a ficha, e precisam estar no mesmo WiFi do estudio.
 
 
 ----------------------------------------------------------
-7) INICIAR JUNTO COM O WINDOWS (opcional)
+8) INICIAR JUNTO COM O WINDOWS (opcional)
 ----------------------------------------------------------
 
 Para o sistema abrir sozinho ao ligar o PC:
@@ -159,7 +209,7 @@ Para o sistema abrir sozinho ao ligar o PC:
 
 
 ----------------------------------------------------------
-8) PROBLEMAS COMUNS
+9) PROBLEMAS COMUNS
 ----------------------------------------------------------
 
 * "node nao e reconhecido"
@@ -172,8 +222,21 @@ Para o sistema abrir sozinho ao ligar o PC:
      depende do servidor estar rodando.
 
 * Windows pergunta sobre firewall na primeira execucao
-  -> Permita o acesso em "Redes privadas" para que os
-     celulares no WiFi consigam abrir a ficha.
+  -> Permita o acesso (marque Redes privadas E publicas).
+
+* Celular nao abre a ficha / QR nao carrega em nenhum lugar
+  -> 1) Rode os comandos da secao 5 (liberar firewall) numa
+        PowerShell como ADMINISTRADOR. Sintoma classico:
+        funciona no PC mas nenhum outro aparelho acessa.
+     2) Confirme que o celular esta no MESMO WiFi do PC
+        (sem ser rede "Visitante").
+     3) Confira o IP atual no painel (QR Code) - pode ter
+        mudado depois de reiniciar o roteador.
+     Teste direto no navegador do celular:
+        http://<IP-do-PC>:3000/
+  -> Para saber se e firewall ou rede: em outro PC, no cmd,
+     rode "ping <IP-do-PC>". Se responder, e firewall
+     (passo 1). Se der tempo esgotado, e a rede.
 
 * A porta 3000 ja esta em uso
   -> Outro programa (ou outra instancia) esta usando a
@@ -191,7 +254,7 @@ Para o sistema abrir sozinho ao ligar o PC:
 
 
 ----------------------------------------------------------
-9) BACKUP DOS DADOS
+10) BACKUP DOS DADOS
 ----------------------------------------------------------
 
 Todos os dados (fichas e agendamentos) ficam em um unico
@@ -212,5 +275,10 @@ arquivo dev.db pelo backup com o servidor parado.
     4. npm install
     5. npx prisma generate
     6. npx prisma db push
-    7. Duplo clique em "Iniciar Black Ink Studio.vbs"
+    7. Liberar firewall (secao 5) - PowerShell como admin:
+         - libera porta 3000
+         - remove bloqueio do node
+         - libera node.exe na entrada
+    8. Duplo clique em "Iniciar Black Ink Studio.vbs"
+    9. Celular no mesmo WiFi -> escanear o QR do painel
 ==========================================================

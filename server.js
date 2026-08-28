@@ -25,22 +25,54 @@ const PORT = process.env.PORT || 3000;
 
 // ============ DETECÇÃO DO IP LOCAL ============
 /**
- * Procura o primeiro IP IPv4 não-interno da máquina.
- * Ex: 192.168.0.15, 10.0.0.8
+ * Escolhe o IP da rede REAL do estúdio (WiFi/Ethernet), ignorando
+ * adaptadores virtuais (ZeroTier, VPN, VMware, etc.) que o celular
+ * do cliente não enxerga.
+ * Pode forçar manualmente com a variável de ambiente HOST_IP.
  */
 function getLocalIP() {
+  if (process.env.HOST_IP) return process.env.HOST_IP;
+
+  const virtuais = /zerotier|vmware|virtualbox|vethernet|hyper-?v|vpn|tailscale|hamachi|bluetooth|docker|wsl|loopback/i;
+  const fisicos = /wi-?fi|wireless|ethernet|en0|eth\d/i;
   const interfaces = os.networkInterfaces();
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
-      }
+  const candidatos = [];
+
+  for (const [nome, addrs] of Object.entries(interfaces)) {
+    for (const iface of addrs) {
+      if (iface.family !== 'IPv4' || iface.internal) continue;
+      const ip = iface.address;
+      let score = 0;
+      if (virtuais.test(nome)) score -= 100;
+      if (fisicos.test(nome)) score += 30;
+      if (ip.startsWith('192.168.')) score += 20;
+      else if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) score += 15;
+      else if (ip.startsWith('10.')) score += 5;
+      candidatos.push({ ip, score });
     }
   }
-  return 'localhost';
+
+  if (!candidatos.length) return 'localhost';
+  candidatos.sort((a, b) => b.score - a.score);
+  return candidatos[0].ip;
 }
 
 const onlyDigits = (s) => (s || '').replace(/\D/g, '');
+
+/**
+ * Procura um cliente que já tenha o mesmo CPF (comparando só dígitos).
+ * exceptId: ignora esse id (usado em edição/atualização do próprio cliente).
+ * Retorna o cliente conflitante ou null. Só considera CPF completo (11 dígitos).
+ */
+async function clienteComCpf(cpf, exceptId = null) {
+  const alvo = onlyDigits(cpf);
+  if (alvo.length !== 11) return null;
+  const todos = await prisma.cliente.findMany({
+    where: { cpf: { not: null } },
+    select: { id: true, nome: true, cpf: true },
+  });
+  return todos.find(c => onlyDigits(c.cpf) === alvo && c.id !== exceptId) || null;
+}
 
 const LOCAL_IP = getLocalIP();
 const CLIENT_URL = `http://${LOCAL_IP}:${PORT}/`;
@@ -123,8 +155,22 @@ app.post('/api/fichas', submitLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Consentimentos obrigatórios não foram aceitos' });
     }
 
-    // ===== Resolve o cliente: vincula ao informado, acha por WhatsApp ou cria =====
+    // ===== Resolve o cliente: vincula ao informado, acha por CPF/WhatsApp ou cria =====
     let clienteId = data.clienteId ? parseInt(data.clienteId, 10) : null;
+
+    // Regra de CPF único: cada pessoa só pode existir uma vez
+    const donoCpf = await clienteComCpf(data.cpf, clienteId);
+    if (donoCpf) {
+      if (clienteId) {
+        // o CPF pertence a OUTRO cliente -> não deixa duplicar
+        return res.status(409).json({
+          error: `Este CPF já está cadastrado para outro cliente (${donoCpf.nome}).`,
+        });
+      }
+      // walk-in: já existe alguém com esse CPF -> vincula a ele (não cria duplicado)
+      clienteId = donoCpf.id;
+    }
+
     if (clienteId) {
       // preenche dados de contato que faltarem no cliente
       await prisma.cliente.update({
@@ -516,6 +562,10 @@ app.post('/api/clientes', adminOnlyLocalhost, async (req, res) => {
     if (!d.nome || !d.whatsapp) {
       return res.status(400).json({ error: 'Nome e WhatsApp são obrigatórios' });
     }
+    if (d.cpf) {
+      const dup = await clienteComCpf(d.cpf);
+      if (dup) return res.status(409).json({ error: `Já existe um cliente com este CPF: ${dup.nome}` });
+    }
     const cliente = await prisma.cliente.create({
       data: {
         nome: d.nome,
@@ -541,6 +591,10 @@ app.put('/api/clientes/:id', adminOnlyLocalhost, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const d = req.body;
+    if (d.cpf) {
+      const dup = await clienteComCpf(d.cpf, id);
+      if (dup) return res.status(409).json({ error: `Já existe outro cliente com este CPF: ${dup.nome}` });
+    }
     const cliente = await prisma.cliente.update({
       where: { id },
       data: {

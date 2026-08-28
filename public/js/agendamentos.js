@@ -342,12 +342,6 @@ document.getElementById('nextWeek').addEventListener('click', () => {
   render();
 });
 
-document.getElementById('todayBtn').addEventListener('click', () => {
-  weekStart = startOfWeek(new Date());
-  miniCalMonth = new Date(weekStart.getFullYear(), weekStart.getMonth(), 1);
-  render();
-});
-
 // ============ FILTERS ============
 ['filterArtist', 'filterType', 'filterStatus'].forEach(id => {
   document.getElementById(id).addEventListener('change', (e) => {

@@ -330,6 +330,11 @@ document.getElementById("anamneseForm").addEventListener("submit", async (e) => 
 
     const result = await res.json();
 
+    // Esconde a barra de navegacao ANTES de trocar o conteudo
+    // (ela fica dentro de .sheet; depois da troca ela some e viraria null)
+    const navBar = document.querySelector(".nav-bar");
+    if (navBar) navBar.style.display = "none";
+
     // Tela de sucesso
     document.querySelector(".sheet").innerHTML = `
       <div class="success-card">
@@ -340,7 +345,6 @@ document.getElementById("anamneseForm").addEventListener("submit", async (e) => 
         <button type="button" class="btn-primary" onclick="window.print()">Imprimir / Salvar PDF</button>
       </div>
     `;
-    document.querySelector(".nav-bar").style.display = "none";
   } catch (err) {
     alert("Erro ao enviar ficha: " + err.message + "\n\nPor favor, tente novamente.");
     submitBtn.disabled = false;
