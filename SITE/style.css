@@ -794,6 +794,12 @@ p {
       width: 40rem;
       text-align: center;
       text-shadow: rgb(0, 0, 0) 0px 0px 2.6rem;
+      & .fio {
+        margin: 0 auto 2rem;
+      }
+      & i {
+        font-size: 2.6rem;
+      }
 
       & h3 {
         font-size: 2.6rem;
